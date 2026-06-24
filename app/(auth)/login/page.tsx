@@ -1,5 +1,6 @@
 import { loginAction } from "@/app/(auth)/login/actions";
 import { Notice } from "@/components/ui/Notice";
+import Link from "next/link";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata = { title: "Sign in" };
@@ -53,7 +54,10 @@ export default async function LoginPage({
           </form>
 
           <hr className="divider" />
-          <a href="/forgot-password">Forgot your password?</a>
+          <div className="actions" style={{ justifyContent: "space-between" }}>
+            <Link href="/forgot-password">Forgot your password?</Link>
+            <Link href="/signup">Create an account</Link>
+          </div>
         </div>
       </section>
     </main>
