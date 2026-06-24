@@ -4,6 +4,8 @@ import type { Database } from "@/types/database.generated";
 
 const publicPaths = [
   "/login",
+  "/signup",
+  "/signup/pending",
   "/forgot-password",
   "/reset-password",
   "/auth/callback",
@@ -84,23 +86,25 @@ export async function updateSession(request: NextRequest) {
   let activeProfile = false;
 
   if (user) {
-    // RLS returns the profile only when it is active and the JWT was issued
-    // after auth_not_before. Role changes and disabling therefore revoke older sessions.
     const { data: profile } = await supabase
       .from("user_profiles")
-      .select("id")
+      .select("active")
       .eq("id", user.id)
       .maybeSingle();
-    activeProfile = Boolean(profile);
+    activeProfile = profile?.active === true;
   }
 
   if (user && !activeProfile) {
-    await supabase.auth.signOut({ scope: "local" });
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.search = "";
-    loginUrl.searchParams.set("error", "Your session is no longer authorized. Sign in again.");
-    const redirectResponse = NextResponse.redirect(loginUrl);
+    if (pathname === "/signup/pending") {
+      response.headers.set("Content-Security-Policy", csp);
+      response.headers.set("Cache-Control", "private, no-store");
+      return response;
+    }
+
+    const pendingUrl = request.nextUrl.clone();
+    pendingUrl.pathname = "/signup/pending";
+    pendingUrl.search = "";
+    const redirectResponse = NextResponse.redirect(pendingUrl);
     copyCookies(response, redirectResponse);
     redirectResponse.headers.set("Content-Security-Policy", csp);
     return redirectResponse;
@@ -116,7 +120,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && activeProfile && pathname === "/login") {
+  if (user && activeProfile && (pathname === "/login" || pathname === "/signup" || pathname === "/signup/pending")) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";
