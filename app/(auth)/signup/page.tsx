@@ -3,7 +3,7 @@ import { Notice } from "@/components/ui/Notice";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { requestStaffAccess } from "@/lib/self-registration";
 
-export const metadata = { title: "Request staff access" };
+export const metadata = { title: "Usher access" };
 
 export default async function SignupPage({
   searchParams
@@ -15,23 +15,23 @@ export default async function SignupPage({
   return (
     <main className="login-shell">
       <section className="login-hero">
-        <div className="eyebrow" style={{ color: "#bfdbfe" }}>Staff account request</div>
+        <div className="eyebrow" style={{ color: "#bfdbfe" }}>Usher access</div>
         <h1>Create an account or request a secure sign-in link.</h1>
         <p>
           Submit your name and email address, then use the secure link sent by Supabase.
-          New accounts remain inactive until a church administrator approves access.
+          After confirming the email, users receive usher access automatically.
         </p>
         <div className="login-points">
           <div className="login-point"><span>1</span><strong>Request your secure email link</strong></div>
           <div className="login-point"><span>2</span><strong>Confirm the account through email</strong></div>
-          <div className="login-point"><span>3</span><strong>Wait for administrator approval</strong></div>
+          <div className="login-point"><span>3</span><strong>Open the dashboard as an usher</strong></div>
         </div>
       </section>
 
       <section className="login-panel">
         <div className="login-card">
           <div className="eyebrow">Secure email access</div>
-          <h2>Request access or sign in</h2>
+          <h2>Create account or sign in</h2>
           <p className="muted">Use your own email address. Shared accounts are not permitted.</p>
           <Notice message={params.error} kind="error" />
 
