@@ -16,7 +16,7 @@ export default async function SignupPage({
     <main className="login-shell">
       <section className="login-hero">
         <div className="eyebrow" style={{ color: "#bfdbfe" }}>Staff account request</div>
-        <h1>Create your individual church staff account.</h1>
+        <h1>Create an account or request a secure sign-in link.</h1>
         <p>
           Submit your name and email address, then use the secure link sent by Supabase.
           New accounts remain inactive until a church administrator approves access.
@@ -30,8 +30,8 @@ export default async function SignupPage({
 
       <section className="login-panel">
         <div className="login-card">
-          <div className="eyebrow">Request access</div>
-          <h2>Create account</h2>
+          <div className="eyebrow">Secure email access</div>
+          <h2>Request access or sign in</h2>
           <p className="muted">Use your own email address. Shared accounts are not permitted.</p>
           <Notice message={params.error} kind="error" />
 
@@ -46,13 +46,13 @@ export default async function SignupPage({
             </div>
             <div className="field">
               <SubmitButton className="button button-primary button-full" pendingLabel="Sending secure link…">
-                Send secure signup link
+                Send secure email link
               </SubmitButton>
             </div>
           </form>
 
           <hr className="divider" />
-          <p className="muted">Already registered?</p>
+          <p className="muted">Prefer password sign-in?</p>
           <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
         </div>
       </section>
