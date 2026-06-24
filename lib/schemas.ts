@@ -18,6 +18,18 @@ export const loginSchema = z.object({
   next: z.string().startsWith("/").max(200).default("/dashboard")
 });
 
+export const signupSchema = z
+  .object({
+    displayName: z.string().trim().min(2).max(80),
+    email: z.email().max(254),
+    password: z.string().min(12).max(128),
+    confirmPassword: z.string().min(12).max(128)
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match."
+  });
+
 export const visitorRegistrationSchema = z
   .object({
     fullName: z.string().trim().min(2).max(100),
