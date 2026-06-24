@@ -33,7 +33,14 @@ export async function requestStaffAccess(formData: FormData) {
   });
 
   if (error) {
-    redirect("/signup?error=The+access+request+could+not+be+submitted.+Please+try+again.");
+    console.error("Self-registration request failed", {
+      code: error.code ?? "unknown",
+      status: error.status ?? 0,
+      message: error.message
+    });
+
+    const safeCode = encodeURIComponent(error.code ?? "auth_error");
+    redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${safeCode}`);
   }
 
   redirect("/login?notice=Check+your+email+for+the+secure+sign-in+link.+Your+account+will+remain+pending+until+an+administrator+approves+it.");
