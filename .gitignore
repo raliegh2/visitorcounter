@@ -13,3 +13,5 @@ supabase/.branches
 supabase/.temp
 
 .vercel
+
+tsconfig.tsbuildinfo
