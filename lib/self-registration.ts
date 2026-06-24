@@ -27,7 +27,7 @@ export async function requestStaffAccess(formData: FormData) {
     email: parsed.data.email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/signup/pending`,
+      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/dashboard`,
       data: { display_name: parsed.data.displayName }
     }
   });
@@ -43,5 +43,5 @@ export async function requestStaffAccess(formData: FormData) {
     redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${safeCode}`);
   }
 
-  redirect("/login?notice=Check+your+email+for+the+secure+sign-in+link.+Your+account+will+remain+pending+until+an+administrator+approves+it.");
+  redirect("/login?notice=Check+your+email+for+the+secure+sign-in+link.+After+confirmation,+you+will+enter+the+system+as+an+usher.");
 }
