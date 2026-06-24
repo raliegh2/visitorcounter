@@ -32,7 +32,7 @@ export default async function LoginPage({
         <div className="login-card">
           <div className="eyebrow">Staff access</div>
           <h2>Sign in</h2>
-          <p className="muted">Enter the email address and password assigned to your individual account.</p>
+          <p className="muted">Use your assigned password, or request a secure email link below.</p>
           <Notice message={params.error} kind="error" />
           <Notice message={params.notice} kind="success" />
 
@@ -56,7 +56,7 @@ export default async function LoginPage({
           <hr className="divider" />
           <div className="actions" style={{ justifyContent: "space-between" }}>
             <Link href="/forgot-password">Forgot your password?</Link>
-            <Link href="/signup">Create an account</Link>
+            <Link href="/signup">Create account or email sign-in</Link>
           </div>
         </div>
       </section>
