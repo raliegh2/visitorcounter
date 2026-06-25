@@ -1,0 +1,1 @@
+Branch creation is performed through the GitHub branch API; this file exists only as repository documentation.
