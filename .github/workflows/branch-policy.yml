@@ -1,0 +1,54 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  validate-promotion-path:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate source and target branches
+        shell: bash
+        run: |
+          BASE="${{ github.base_ref }}"
+          HEAD="${{ github.head_ref }}"
+
+          if [[ "$BASE" == "main" && "$HEAD" != "staging" ]]; then
+            echo "Production pull requests must come from staging."
+            exit 1
+          fi
+
+          if [[ "$BASE" == "staging" && "$HEAD" != "dev" ]]; then
+            echo "Staging pull requests must come from dev."
+            exit 1
+          fi
+
+          if [[ "$BASE" == "dev" ]]; then
+            case "$HEAD" in
+              feature/*|fix/*|security/*|chore/*|hotfix/*) ;;
+              *)
+                echo "Pull requests into dev must use an approved feature branch prefix."
+                exit 1
+                ;;
+            esac
+          fi
+
+          echo "Branch promotion path is valid: $HEAD -> $BASE"
+
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npm run typecheck --if-present
+      - run: npm run lint --if-present
+      - run: npm test -- --run
+      - run: npm run build
