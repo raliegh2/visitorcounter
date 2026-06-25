@@ -18,17 +18,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
         env:
-          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder_000000000000000000
+          NEXT_PUBLIC_SUPABASE_URL: https://example.invalid
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-publishable-placeholder-1234567890
           NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
-          SUPABASE_SERVICE_ROLE_KEY: sb_secret_ci_placeholder_000000000000000000000
-          REAUTH_COOKIE_SECRET: ci-only-placeholder-not-used-at-runtime-123456789
+          SUPABASE_SERVICE_ROLE_KEY: ci-service-role-placeholder-1234567890
+          REAUTH_COOKIE_SECRET: ci-cookie-placeholder-12345678901234567890
       - run: npm audit --audit-level=high
 
   database:
@@ -39,6 +39,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase start
-      - run: supabase db reset
-      - run: supabase test db
+      - name: Start local database only
+        run: supabase db start
+      - name: Run pgTAP database tests
+        run: supabase test db
