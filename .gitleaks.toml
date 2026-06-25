@@ -2,14 +2,7 @@
 useDefault = true
 
 [[allowlists]]
-description = "Known non-secret CI placeholder values in the CI workflow"
+description = "Ignore the audited dummy CI credential in one historical workflow commit"
 condition = "AND"
-regexTarget = "match"
+commits = ["5d882cac9dd830083e18e16dcc3193d9b376fdcf"]
 paths = ['''^\.github/workflows/ci\.yml$''']
-regexes = [
-  '''sb_publishable_ci_placeholder_000000000000000000''',
-  '''sb_secret_ci_placeholder_000000000000000000000''',
-  '''ci-publishable-placeholder-1234567890''',
-  '''ci-service-role-placeholder-1234567890''',
-  '''ci-cookie-placeholder-12345678901234567890'''
-]
