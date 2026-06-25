@@ -33,12 +33,13 @@ jobs:
 
   database:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - run: supabase start
-      - run: supabase db reset
-      - run: supabase test db
+      - name: Start local database only
+        run: supabase db start
+      - name: Run pgTAP database tests
+        run: supabase test db
