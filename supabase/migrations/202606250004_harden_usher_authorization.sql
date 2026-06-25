@@ -5,6 +5,8 @@ begin;
 do $$
 declare
   policy_row record;
+  object_name text;
+  function_name text;
 begin
   for policy_row in
     select policyname, tablename
@@ -18,23 +20,42 @@ begin
       policy_row.tablename
     );
   end loop;
+
+  foreach object_name in array array[
+    'legacy_profiles',
+    'legacy_people',
+    'legacy_services',
+    'legacy_attendance_records',
+    'legacy_follow_ups',
+    'legacy_audit_logs',
+    'legacy_service_attendance_summary'
+  ]
+  loop
+    if to_regclass(format('public.%I', object_name)) is not null then
+      execute format(
+        'revoke all privileges on table public.%I from public, anon, authenticated',
+        object_name
+      );
+    end if;
+  end loop;
+
+  foreach function_name in array array[
+    'legacy_current_user_role()',
+    'legacy_is_admin()',
+    'legacy_is_staff()',
+    'legacy_handle_new_user()',
+    'legacy_set_updated_at()'
+  ]
+  loop
+    if to_regprocedure('public.' || function_name) is not null then
+      execute format(
+        'revoke execute on function public.%s from public, anon, authenticated',
+        function_name
+      );
+    end if;
+  end loop;
 end;
 $$;
-
-revoke all privileges on table public.legacy_profiles from public, anon, authenticated;
-revoke all privileges on table public.legacy_people from public, anon, authenticated;
-revoke all privileges on table public.legacy_services from public, anon, authenticated;
-revoke all privileges on table public.legacy_attendance_records from public, anon, authenticated;
-revoke all privileges on table public.legacy_follow_ups from public, anon, authenticated;
-revoke all privileges on table public.legacy_audit_logs from public, anon, authenticated;
-revoke all privileges on table public.legacy_service_attendance_summary from public, anon, authenticated;
-
--- Legacy helper functions are not part of the supported application API.
-revoke execute on function public.legacy_current_user_role() from public, anon, authenticated;
-revoke execute on function public.legacy_is_admin() from public, anon, authenticated;
-revoke execute on function public.legacy_is_staff() from public, anon, authenticated;
-revoke execute on function public.legacy_handle_new_user() from public, anon, authenticated;
-revoke execute on function public.legacy_set_updated_at() from public, anon, authenticated;
 
 -- Trigger-only functions must not be callable through the API.
 revoke execute on function public.handle_new_auth_user() from public, anon, authenticated;
