@@ -438,7 +438,7 @@ create or replace function public.dashboard_metrics(
 returns table (
   attending bigint,
   first_time bigint,
-  returning bigint,
+  "returning" bigint,
   visitor_records bigint
 )
 language plpgsql
