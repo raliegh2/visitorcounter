@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known non-secret CI placeholder values in the CI workflow"
+condition = "AND"
+regexTarget = "match"
+paths = ['''^\.github/workflows/ci\.yml$''']
+regexes = [
+  '''sb_publishable_ci_placeholder_000000000000000000''',
+  '''sb_secret_ci_placeholder_000000000000000000000''',
+  '''ci-publishable-placeholder-1234567890''',
+  '''ci-service-role-placeholder-1234567890''',
+  '''ci-cookie-placeholder-12345678901234567890'''
+]
