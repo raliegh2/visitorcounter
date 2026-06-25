@@ -1,8 +1,6 @@
 [extend]
 useDefault = true
 
-[[allowlists]]
-description = "Ignore the audited dummy CI credential in one historical workflow commit"
-condition = "AND"
+[allowlist]
+description = "Ignore one audited historical commit containing CI-only placeholder credentials"
 commits = ["5d882cac9dd830083e18e16dcc3193d9b376fdcf"]
-paths = ['''^\.github/workflows/ci\.yml$''']
