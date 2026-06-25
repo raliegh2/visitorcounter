@@ -5,31 +5,38 @@ create extension if not exists pgtap with schema extensions;
 select plan(18);
 
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_profiles', 'SELECT'),
+  to_regclass('public.legacy_profiles') is null
+  or not has_table_privilege('authenticated', 'public.legacy_profiles', 'SELECT'),
   'authenticated users cannot read legacy profiles'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_people', 'SELECT'),
+  to_regclass('public.legacy_people') is null
+  or not has_table_privilege('authenticated', 'public.legacy_people', 'SELECT'),
   'authenticated users cannot read legacy people'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_services', 'SELECT'),
+  to_regclass('public.legacy_services') is null
+  or not has_table_privilege('authenticated', 'public.legacy_services', 'SELECT'),
   'authenticated users cannot read legacy services'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_attendance_records', 'SELECT'),
+  to_regclass('public.legacy_attendance_records') is null
+  or not has_table_privilege('authenticated', 'public.legacy_attendance_records', 'SELECT'),
   'authenticated users cannot read legacy attendance'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_follow_ups', 'SELECT'),
+  to_regclass('public.legacy_follow_ups') is null
+  or not has_table_privilege('authenticated', 'public.legacy_follow_ups', 'SELECT'),
   'authenticated users cannot read legacy follow-ups'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_audit_logs', 'SELECT'),
+  to_regclass('public.legacy_audit_logs') is null
+  or not has_table_privilege('authenticated', 'public.legacy_audit_logs', 'SELECT'),
   'authenticated users cannot read legacy audit logs'
 );
 select ok(
-  not has_table_privilege('authenticated', 'public.legacy_service_attendance_summary', 'SELECT'),
+  to_regclass('public.legacy_service_attendance_summary') is null
+  or not has_table_privilege('authenticated', 'public.legacy_service_attendance_summary', 'SELECT'),
   'authenticated users cannot read the legacy attendance view'
 );
 
@@ -40,15 +47,18 @@ select is(
 );
 
 select ok(
-  not has_function_privilege('authenticated', 'public.legacy_current_user_role()', 'EXECUTE'),
+  to_regprocedure('public.legacy_current_user_role()') is null
+  or not has_function_privilege('authenticated', to_regprocedure('public.legacy_current_user_role()'), 'EXECUTE'),
   'authenticated users cannot execute legacy role helper'
 );
 select ok(
-  not has_function_privilege('authenticated', 'public.legacy_is_admin()', 'EXECUTE'),
+  to_regprocedure('public.legacy_is_admin()') is null
+  or not has_function_privilege('authenticated', to_regprocedure('public.legacy_is_admin()'), 'EXECUTE'),
   'authenticated users cannot execute legacy admin helper'
 );
 select ok(
-  not has_function_privilege('authenticated', 'public.legacy_is_staff()', 'EXECUTE'),
+  to_regprocedure('public.legacy_is_staff()') is null
+  or not has_function_privilege('authenticated', to_regprocedure('public.legacy_is_staff()'), 'EXECUTE'),
   'authenticated users cannot execute legacy staff helper'
 );
 select ok(
