@@ -36,8 +36,11 @@ export default async function VisitorsPage({
     <>
       <header className="page-header">
         <div>
-          <h1>Visitors</h1>
-          <p>Search existing records before registering a first-time visitor.</p>
+          <h1>Visitor check-in</h1>
+          <p>
+            Search active visitor records first. Existing records are checked in as returning visitors;
+            new records are logged as first-time visitors.
+          </p>
         </div>
         {service ? <ServicePicker services={services} selectedId={service.id} action="/visitors" /> : null}
       </header>
@@ -50,7 +53,13 @@ export default async function VisitorsPage({
       ) : (
         <div className="grid grid-2">
           <section className="card">
-            <h2>Find a returning visitor</h2>
+            <div className="page-header" style={{ marginBottom: 12 }}>
+              <div>
+                <h2>Find a returning visitor</h2>
+                <p className="muted small">Only active, non-anonymized visitor records are searchable.</p>
+              </div>
+              <span className="badge badge-neutral">Returning visitor</span>
+            </div>
             <form method="get" action="/visitors" className="toolbar">
               <input type="hidden" name="service" value={service.id} />
               <div className="field grow">
@@ -69,7 +78,11 @@ export default async function VisitorsPage({
                 <article className="card" key={visitor.id}>
                   <div className="page-header" style={{ marginBottom: 0 }}>
                     <div>
-                      <h3>{visitor.full_name}</h3>
+                      <div className="actions" style={{ marginBottom: 6 }}>
+                        <h3 style={{ margin: 0 }}>{visitor.full_name}</h3>
+                        <span className="badge badge-neutral">Returning visitor</span>
+                        <span className="badge badge-success">Active</span>
+                      </div>
                       <p className="muted small">
                         {visitor.preferred_name ? `Preferred: ${visitor.preferred_name} · ` : ""}
                         First visit: {visitor.first_visit_date}
@@ -77,7 +90,7 @@ export default async function VisitorsPage({
                       </p>
                     </div>
                     {visitor.already_checked_in ? (
-                      <span className="badge badge-success">Already checked in</span>
+                      <span className="badge badge-success">Already counted</span>
                     ) : (
                       <form action={checkInVisitorAction}>
                         <input type="hidden" name="visitorId" value={visitor.id} />
@@ -86,7 +99,7 @@ export default async function VisitorsPage({
                           className="button button-primary button-small"
                           pendingLabel="Checking in…"
                         >
-                          Check in
+                          Check in and count
                         </SubmitButton>
                       </form>
                     )}
@@ -97,8 +110,15 @@ export default async function VisitorsPage({
           </section>
 
           <section className="card">
-            <h2>Register first-time visitor</h2>
-            <p className="muted small">Names are not unique identifiers. Duplicate names are supported safely.</p>
+            <div className="page-header" style={{ marginBottom: 12 }}>
+              <div>
+                <h2>Register first-time visitor</h2>
+                <p className="muted small">
+                  Registration creates an active visitor record and immediately counts the person for this service.
+                </p>
+              </div>
+              <span className="badge badge-success">First-time visitor</span>
+            </div>
             <form action={registerVisitorAction}>
               <input type="hidden" name="serviceId" value={service.id} />
               <div className="form-grid">
@@ -129,7 +149,7 @@ export default async function VisitorsPage({
                 addresses, identification numbers, or information about minors.
               </div>
               <SubmitButton className="button button-primary button-full" pendingLabel="Registering…">
-                Register and check in
+                Register, activate and count
               </SubmitButton>
             </form>
           </section>
