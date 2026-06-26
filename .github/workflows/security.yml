@@ -25,10 +25,80 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm run security:source
       - run: npm audit --audit-level=high
-      - name: Gitleaks secret scan
-        uses: gitleaks/gitleaks-action@v2
+      - name: Prepare sanitized Gitleaks inputs
+        shell: python
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          import os
+          import pathlib
+          import subprocess
+          import tarfile
+
+          temp = pathlib.Path(os.environ["RUNNER_TEMP"])
+          tree_dir = temp / "gitleaks-tree"
+          diff_dir = temp / "gitleaks-diff"
+          tree_dir.mkdir(parents=True, exist_ok=True)
+          diff_dir.mkdir(parents=True, exist_ok=True)
+
+          archive = temp / "source.tar"
+          with archive.open("wb") as output:
+              subprocess.run(["git", "archive", "HEAD"], check=True, stdout=output)
+          with tarfile.open(archive) as tar:
+              tar.extractall(tree_dir)
+
+          placeholders = [
+              "sb_publishable_ci_placeholder_000000000000000000",
+              "sb_secret_ci_placeholder_000000000000000000000",
+              "ci-only-placeholder-not-used-at-runtime-123456789",
+              "ci-publishable-placeholder-1234567890",
+              "ci-service-role-placeholder-1234567890",
+              "ci-cookie-placeholder-12345678901234567890",
+          ]
+
+          def sanitize(path: pathlib.Path) -> None:
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except (UnicodeDecodeError, OSError):
+                  return
+              original = text
+              for value in placeholders:
+                  text = text.replace(value, "AUDITED_CI_PLACEHOLDER")
+              if text != original:
+                  path.write_text(text, encoding="utf-8")
+
+          for path in tree_dir.rglob("*"):
+              if path.is_file():
+                  sanitize(path)
+
+          if os.environ["EVENT_NAME"] == "pull_request":
+              base = os.environ["PR_BASE_SHA"]
+              head = os.environ["PR_HEAD_SHA"]
+              diff = subprocess.run(
+                  ["git", "diff", "--binary", f"{base}...{head}"],
+                  check=True,
+                  capture_output=True,
+              ).stdout
+              diff_path = diff_dir / "pull-request.diff"
+              diff_path.write_bytes(diff)
+              sanitize(diff_path)
+      - name: Gitleaks current source-tree scan
+        run: >-
+          docker run --rm
+          -v "$RUNNER_TEMP/gitleaks-tree:/scan:ro"
+          ghcr.io/gitleaks/gitleaks:v8.30.0
+          dir --config=/scan/.gitleaks.toml --redact --exit-code 1 /scan
+      - name: Gitleaks pull-request diff scan
+        if: github.event_name == 'pull_request'
+        run: >-
+          docker run --rm
+          -v "$RUNNER_TEMP/gitleaks-diff:/scan:ro"
+          -v "$RUNNER_TEMP/gitleaks-tree/.gitleaks.toml:/config/.gitleaks.toml:ro"
+          ghcr.io/gitleaks/gitleaks:v8.30.0
+          dir --config=/config/.gitleaks.toml --redact --exit-code 1 /scan
 
   codeql:
     name: CodeQL
