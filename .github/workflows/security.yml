@@ -25,12 +25,16 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm run security:source
       - run: npm audit --audit-level=high
+      - name: Export clean source tree
+        run: |
+          mkdir -p "$RUNNER_TEMP/gitleaks-tree"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/gitleaks-tree"
       - name: Gitleaks current source-tree scan
         run: >-
           docker run --rm
-          -v "$PWD:/repo"
+          -v "$RUNNER_TEMP/gitleaks-tree:/scan:ro"
           ghcr.io/gitleaks/gitleaks:v8.30.0
-          dir --config=/repo/.gitleaks.toml --redact --exit-code 1 /repo
+          dir --config=/scan/.gitleaks.toml --redact --exit-code 1 /scan
       - name: Gitleaks pull-request commit-range scan
         if: github.event_name == 'pull_request'
         run: >-
