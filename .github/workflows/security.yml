@@ -25,10 +25,21 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npm run security:source
       - run: npm audit --audit-level=high
-      - name: Gitleaks secret scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gitleaks current source-tree scan
+        run: >-
+          docker run --rm
+          -v "$PWD:/repo"
+          ghcr.io/gitleaks/gitleaks:v8.30.0
+          dir --config=/repo/.gitleaks.toml --redact --exit-code 1 /repo
+      - name: Gitleaks pull-request commit-range scan
+        if: github.event_name == 'pull_request'
+        run: >-
+          docker run --rm
+          -v "$PWD:/repo"
+          ghcr.io/gitleaks/gitleaks:v8.30.0
+          git --config=/repo/.gitleaks.toml --redact --exit-code 1
+          --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          /repo
 
   codeql:
     name: CodeQL
