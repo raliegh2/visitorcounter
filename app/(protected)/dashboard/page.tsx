@@ -36,7 +36,9 @@ export default async function DashboardPage({
       <header className="page-header">
         <div>
           <h1>Current service dashboard</h1>
-          <p>Summary information is limited according to your assigned role.</p>
+          <p>
+            Live attendance totals are calculated from active check-ins for services assigned to your account.
+          </p>
         </div>
         {service ? <ServicePicker services={services} selectedId={service.id} action="/dashboard" /> : null}
       </header>
@@ -54,7 +56,7 @@ export default async function DashboardPage({
                 Register or find visitor
               </Link>
               <Link className="button button-secondary" href={`/attendance?service=${service.id}`}>
-                View attendance
+                View attendance count
               </Link>
             </div>
           ) : null}
@@ -65,36 +67,48 @@ export default async function DashboardPage({
 
       <section className="grid grid-4">
         <div className="card metric">
-          <div><div className="metric-label">Attending</div><div className="metric-value">{metrics.attending}</div></div>
+          <div>
+            <div className="metric-label">Total individuals present</div>
+            <div className="metric-value">{metrics.attending}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">✓</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">First-time visitors</div><div className="metric-value">{metrics.first_time}</div></div>
+          <div>
+            <div className="metric-label">First-time visitors</div>
+            <div className="metric-value">{metrics.first_time}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">★</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">Returning visitors</div><div className="metric-value">{metrics.returning}</div></div>
+          <div>
+            <div className="metric-label">Returning visitors</div>
+            <div className="metric-value">{metrics.returning}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">↻</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">Active visitor records</div><div className="metric-value">{metrics.visitor_records}</div></div>
+          <div>
+            <div className="metric-label">Active visitor records</div>
+            <div className="metric-value">{metrics.visitor_records}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">◎</div>
         </div>
       </section>
 
       <section className="grid grid-2" style={{ marginTop: 18 }}>
         <div className="card">
-          <h2>Privacy-first check-in</h2>
+          <h2>How the count works</h2>
           <p className="muted">
-            Collect only a name, preferred name, first-visit date, and optional contact information
-            when the visitor has clearly consented.
+            Each non-voided check-in counts one individual present. A person is marked first-time when
+            the selected service date matches the first-visit date; later check-ins are marked returning.
           </p>
         </div>
         <div className="card">
-          <h2>Do not record</h2>
+          <h2>Active visitors</h2>
           <p className="muted">
-            Do not enter addresses, dates of birth, identification numbers, health information,
-            prayer requests, counseling notes, financial information, or details about minors.
+            Active visitor records are available for future search and check-in. Anonymized or inactive
+            records are excluded automatically.
           </p>
         </div>
       </section>
