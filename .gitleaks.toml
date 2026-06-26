@@ -2,8 +2,5 @@
 useDefault = true
 
 [allowlist]
-description = "Ignore audited historical commits containing CI-only placeholder credentials"
-commits = [
-  "5d882cac9dd830083e18e16dcc3193d9b376fdcf",
-  "4d4bb77d9dd042eb57f32d6afe54b7b26f582239"
-]
+description = "Ignore one audited historical commit containing CI-only placeholder credentials"
+commits = ["5d882cac9dd830083e18e16dcc3193d9b376fdcf"]
