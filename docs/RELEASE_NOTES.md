@@ -9,6 +9,8 @@
   production migrations.
 - Configured Render to derive `NEXT_PUBLIC_APP_URL` from its assigned HTTPS URL
   and generate `REAUTH_COOKIE_SECRET`.
+- Updated Next.js and patched transitive build dependencies to clear the
+  production security audit.
 
 ## Added since rc.1
 
