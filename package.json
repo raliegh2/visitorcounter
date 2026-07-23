@@ -25,8 +25,7 @@
     "security:source": "node scripts/secret-scan.mjs",
     "verify": "npm run typecheck && npm run lint && npm test && npm run security:source && npm run security:audit && npm run build",
     "deploy:preflight": "node scripts/deployment-preflight.mjs",
-    "deploy:supabase": "node scripts/deploy-supabase.mjs",
-    "deploy:vercel": "node scripts/deploy-vercel.mjs"
+    "deploy:supabase": "node scripts/deploy-supabase.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.0",

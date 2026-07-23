@@ -1,5 +1,15 @@
 # Release notes — 1.0.0-rc.2
 
+## Hosting migration
+
+- Replaced the Vercel application deployment with a Render Blueprint and
+  reproducible Docker deployment.
+- Added Render health checking at `/api/health`.
+- Added a protected Render deploy-hook step after successful Supabase
+  production migrations.
+- Configured Render to derive `NEXT_PUBLIC_APP_URL` from its assigned HTTPS URL
+  and generate `REAUTH_COOKIE_SECRET`.
+
 ## Added since rc.1
 
 - Corrected the MFA page so production builds succeed without static prerendering.
@@ -24,9 +34,9 @@
 
 ## External deployment blocker
 
-A live Supabase project and Vercel project are not connected to this workspace.
+A live Supabase project and Render service are not connected to this workspace.
 The production pipeline is ready, but it cannot publish until the required
-Supabase and Vercel credentials are stored in a secure deployment-secret
+Supabase values and Render deploy hook are stored in a secure deployment-secret
 location.
 
 No secret values should be placed in source files, screenshots, issue bodies,

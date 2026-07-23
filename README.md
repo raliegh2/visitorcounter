@@ -99,11 +99,13 @@ The repository includes:
 - `.github/workflows/deploy-production.yml`
 - `scripts/deployment-preflight.mjs`
 - `scripts/deploy-supabase.mjs`
-- `scripts/deploy-vercel.mjs`
-- `vercel.json`
+- `render.yaml`
+- `Dockerfile`
 
 The workflow verifies the application, previews and applies Supabase database
-migrations, builds with Vercel, and publishes a prebuilt production deployment.
+migrations, and then triggers a Render deployment from the tested `main` branch.
+Render builds the reproducible Docker image and verifies `/api/health` before
+serving traffic.
 See `DEPLOYMENT_REQUIRED.md` and `docs/CLOUD_PROVISIONING.md`.
 
 ## Important status

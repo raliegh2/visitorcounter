@@ -6,5 +6,5 @@
 4. Integrated work is promoted from `dev` to `staging` by pull request.
 5. Only a tested staging release is promoted from `staging` to `main`.
 6. Production database migrations require a tested rollback plan.
-7. Vercel production environment variables and the production Supabase project are used only by `main`.
+7. Render production environment variables and the production Supabase project are used only by `main`.
 8. Preview and staging deployments must use non-production credentials and non-production data.

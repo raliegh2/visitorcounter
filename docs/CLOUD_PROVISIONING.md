@@ -3,7 +3,7 @@
 ## Required accounts
 
 - A Supabase organization with a dedicated production project
-- A Vercel team/project connected to the source repository
+- A Render workspace connected to the source repository
 - A private GitHub repository with protected production secrets
 - An approved SMTP provider for Supabase Auth email
 - Monitoring and incident-notification services
@@ -20,9 +20,7 @@ Store these in GitHub Actions production-environment secrets:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `REAUTH_COOKIE_SECRET`
 - `NEXT_PUBLIC_APP_URL`
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
+- `RENDER_DEPLOY_HOOK_URL`
 
 Do not place these values in source files, issue bodies, pull requests, screenshots, or chat.
 
@@ -39,20 +37,24 @@ Do not place these values in source files, issue bodies, pull requests, screensh
 9. Apply migrations through the protected production workflow.
 10. Create the bootstrap administrator and immediately enroll MFA.
 
-## Vercel project settings
+## Render service settings
 
-1. Import the private repository using the Next.js preset.
-2. Add the application environment variables for Production and Preview.
-3. Mark server secrets as sensitive.
-4. Configure the approved production domain.
-5. Require successful GitHub checks before production promotion.
-6. Enable deployment protection for preview environments where appropriate.
-7. Verify the final HTTPS certificate and security headers.
+1. Create a Blueprint from the repository's `render.yaml`.
+2. Provide the requested Supabase values during initial Blueprint setup.
+3. The Blueprint starts on Render's free plan. Upgrade to an always-on paid
+   plan before storing real visitor data if cold starts are unacceptable.
+4. Keep the service on the `main` branch and leave automatic deploys disabled.
+5. Copy the service deploy hook URL into the protected GitHub
+   `RENDER_DEPLOY_HOOK_URL` secret.
+6. Configure the approved production domain, if one is used.
+7. Add the final Render URL and `/auth/callback` path to Supabase Auth's
+   redirect allow-list.
+8. Verify the final HTTPS certificate, `/api/health`, and security headers.
 
 ## Release process
 
 1. Merge an approved pull request into the protected main branch.
 2. Create a release tag such as `v1.0.0`.
-3. The workflow verifies source, previews and applies database migrations, then deploys the prebuilt Vercel application.
+3. The workflow verifies source, previews and applies database migrations, then triggers the Render Docker deployment.
 4. Run production smoke, role, RLS, recovery, and tablet checks.
 5. Record the deployment URL, database migration version, tester, results, and approval.
