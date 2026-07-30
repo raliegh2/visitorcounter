@@ -15,16 +15,38 @@ export default async function ResetPasswordPage({
       <div className="login-card">
         <div className="eyebrow">Account recovery</div>
         <h1>Choose a new password</h1>
-        <p className="muted">Use a unique password with at least 14 characters.</p>
+        <p className="muted" id="password-requirements">
+          Use at least 12 characters. No special character, number, or capitalization pattern is required.
+        </p>
         <Notice message={params.error} kind="error" />
         <form action={updatePasswordAction}>
           <div className="field">
             <label htmlFor="password">New password</label>
-            <input id="password" name="password" type="password" minLength={14} maxLength={128} autoComplete="new-password" required />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              minLength={12}
+              maxLength={128}
+              title="Use at least 12 characters."
+              aria-describedby="password-requirements"
+              autoComplete="new-password"
+              required
+            />
           </div>
           <div className="field">
             <label htmlFor="confirmation">Confirm new password</label>
-            <input id="confirmation" name="confirmation" type="password" minLength={14} maxLength={128} autoComplete="new-password" required />
+            <input
+              id="confirmation"
+              name="confirmation"
+              type="password"
+              minLength={12}
+              maxLength={128}
+              title="Use at least 12 characters."
+              aria-describedby="password-requirements"
+              autoComplete="new-password"
+              required
+            />
           </div>
           <div className="field">
             <SubmitButton className="button button-primary button-full" pendingLabel="Updating…">
