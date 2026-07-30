@@ -16,7 +16,7 @@ export default async function ResetPasswordPage({
         <div className="eyebrow">Account recovery</div>
         <h1>Choose a new password</h1>
         <p className="muted" id="password-requirements">
-          Use at least 12 characters. No special character, number, or capitalization pattern is required.
+          Use 12 to 72 characters. No special character, number, or capitalization pattern is required.
         </p>
         <Notice message={params.error} kind="error" />
         <form action={updatePasswordAction}>
@@ -27,8 +27,8 @@ export default async function ResetPasswordPage({
               name="password"
               type="password"
               minLength={12}
-              maxLength={128}
-              title="Use at least 12 characters."
+              maxLength={72}
+              title="Use 12 to 72 characters."
               aria-describedby="password-requirements"
               autoComplete="new-password"
               required
@@ -41,8 +41,8 @@ export default async function ResetPasswordPage({
               name="confirmation"
               type="password"
               minLength={12}
-              maxLength={128}
-              title="Use at least 12 characters."
+              maxLength={72}
+              title="Use 12 to 72 characters."
               aria-describedby="password-requirements"
               autoComplete="new-password"
               required
