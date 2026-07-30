@@ -91,6 +91,17 @@ npm run dev
 Open `http://localhost:3000`, sign in with the bootstrap administrator, and
 enroll a TOTP authenticator immediately.
 
+## Supabase authentication emails
+
+Hosted Supabase projects must use the server-safe token-hash email templates so
+magic links, signup confirmation, invitations, and password resets work when the
+message is opened in another browser or on another device. Configure the Site
+URL, redirect allow list, and templates described in
+`docs/SUPABASE_AUTH_EMAIL_LINKS.md` before testing email authentication.
+
+The callback remains compatible with older PKCE `code` links, but new messages
+should use `token_hash` verification.
+
 ## Member import format
 
 Export an Excel or Google Sheets directory as CSV. The importer accepts up to
