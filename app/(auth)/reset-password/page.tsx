@@ -4,8 +4,6 @@ import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata = { title: "Choose new password" };
 
-const passwordPattern = "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{14,128}";
-
 export default async function ResetPasswordPage({
   searchParams
 }: {
@@ -18,7 +16,7 @@ export default async function ResetPasswordPage({
         <div className="eyebrow">Account recovery</div>
         <h1>Choose a new password</h1>
         <p className="muted" id="password-requirements">
-          Use at least 14 characters with uppercase and lowercase letters, a number, and a special character.
+          Use at least 12 characters. No special character, number, or capitalization pattern is required.
         </p>
         <Notice message={params.error} kind="error" />
         <form action={updatePasswordAction}>
@@ -28,10 +26,9 @@ export default async function ResetPasswordPage({
               id="password"
               name="password"
               type="password"
-              minLength={14}
+              minLength={12}
               maxLength={128}
-              pattern={passwordPattern}
-              title="Use at least 14 characters with uppercase and lowercase letters, a number, and a special character."
+              title="Use at least 12 characters."
               aria-describedby="password-requirements"
               autoComplete="new-password"
               required
@@ -43,10 +40,9 @@ export default async function ResetPasswordPage({
               id="confirmation"
               name="confirmation"
               type="password"
-              minLength={14}
+              minLength={12}
               maxLength={128}
-              pattern={passwordPattern}
-              title="Use at least 14 characters with uppercase and lowercase letters, a number, and a special character."
+              title="Use at least 12 characters."
               aria-describedby="password-requirements"
               autoComplete="new-password"
               required

@@ -10,14 +10,7 @@ import {
 import { stringField } from "@/lib/form-data";
 import { z } from "zod";
 
-const passwordSchema = z
-  .string()
-  .min(14)
-  .max(128)
-  .regex(/[a-z]/)
-  .regex(/[A-Z]/)
-  .regex(/[0-9]/)
-  .regex(/[^A-Za-z0-9]/);
+const passwordSchema = z.string().min(12).max(128);
 
 const schema = z
   .object({
@@ -29,8 +22,7 @@ const schema = z
     message: "Passwords must match."
   });
 
-const requirementsMessage =
-  "Use matching passwords with at least 14 characters, including uppercase, lowercase, a number, and a special character.";
+const requirementsMessage = "Use matching passwords with at least 12 characters.";
 
 export async function updatePasswordAction(formData: FormData) {
   const parsed = schema.safeParse({
@@ -56,9 +48,6 @@ export async function updatePasswordAction(formData: FormData) {
     );
   }
 
-  // Supabase requires AAL2 for normal password changes on MFA-enrolled accounts.
-  // A freshly verified recovery link supplies a separate short-lived, signed proof,
-  // so the server-only admin API can perform this narrowly scoped recovery action.
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(user.id, {
     password: parsed.data.password
@@ -72,6 +61,34 @@ export async function updatePasswordAction(formData: FormData) {
           ? "Choose a password that is different from your current password."
           : "The password could not be updated. Request a new reset link and try again.";
     redirect(`/reset-password?error=${encodeURIComponent(message)}`);
+  }
+
+  // Authenticator-app MFA is no longer offered by this application. Remove any
+  // factors from the recovered account so future password changes are not tied
+  // to a device the user may no longer have.
+  const { data: factorData, error: factorListError } = await admin.auth.admin.mfa.listFactors({
+    userId: user.id
+  });
+
+  if (factorListError) {
+    console.error("Unable to list MFA factors after password recovery", {
+      code: factorListError.code ?? "unknown",
+      status: factorListError.status ?? 0
+    });
+  } else {
+    for (const factor of factorData.factors) {
+      const { error: deleteFactorError } = await admin.auth.admin.mfa.deleteFactor({
+        id: factor.id,
+        userId: user.id
+      });
+
+      if (deleteFactorError) {
+        console.error("Unable to remove MFA factor after password recovery", {
+          code: deleteFactorError.code ?? "unknown",
+          status: deleteFactorError.status ?? 0
+        });
+      }
+    }
   }
 
   await clearPasswordRecoveryAuthorization();
