@@ -41,13 +41,6 @@ export async function loginAction(formData: FormData) {
     redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
   }
 
-  if (profile.role === "administrator") {
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
-      redirect(`/mfa?next=${encodeURIComponent(parsed.data.next)}`);
-    }
-  }
-
   redirect(parsed.data.next);
 }
 
