@@ -25,13 +25,12 @@
     "security:source": "node scripts/secret-scan.mjs",
     "verify": "npm run typecheck && npm run lint && npm test && npm run security:source && npm run security:audit && npm run build",
     "deploy:preflight": "node scripts/deployment-preflight.mjs",
-    "deploy:supabase": "node scripts/deploy-supabase.mjs",
-    "deploy:vercel": "node scripts/deploy-vercel.mjs"
+    "deploy:supabase": "node scripts/deploy-supabase.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.0",
     "@supabase/supabase-js": "2.108.2",
-    "next": "16.2.9",
+    "next": "16.2.11",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "zod": "4.4.3"
@@ -42,13 +41,14 @@
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "eslint": "9.29.0",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "16.2.11",
     "supabase": "2.107.0",
     "typescript": "5.9.2",
     "vitest": "3.2.6"
   },
   "overrides": {
-    "postcss": "8.5.10",
-    "esbuild": "0.28.1"
+    "postcss": "8.5.22",
+    "esbuild": "0.28.1",
+    "sharp": "0.35.3"
   }
 }

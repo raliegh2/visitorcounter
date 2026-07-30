@@ -16,7 +16,7 @@
 - [x] No real visitor seed data or embedded credentials
 - [x] Production deployment automation prepared
 - [x] Supabase migration dry-run gate prepared
-- [x] Vercel prebuilt deployment pipeline prepared
+- [x] Render Blueprint and Docker deployment pipeline prepared
 
 ## Blocked until a real environment and credentials exist
 

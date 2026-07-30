@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: visitorcounter
+    runtime: docker
+    repo: https://github.com/raliegh2/visitorcounter
+    branch: main
+    plan: free
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeployTrigger: off
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: REAUTH_COOKIE_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_APP_URL
+        fromService:
+          type: web
+          name: visitorcounter
+          envVarKey: RENDER_EXTERNAL_URL

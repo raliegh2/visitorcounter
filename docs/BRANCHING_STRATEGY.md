@@ -30,7 +30,8 @@ This repository uses a protected promotion workflow so development changes do no
 - Never force-push `main`, `staging`, or `dev`.
 - Require pull-request review before merging to `main`.
 - Require passing build, type-check, lint, and test checks before merging.
-- Keep production secrets only in the Vercel production environment.
+- Keep application secrets only in the Render production environment and
+  deployment credentials only in the protected GitHub production environment.
 - Use separate Preview/Staging environment variables and a non-production Supabase environment before database-changing releases.
 - Create an immediate rollback point before each production release.
 

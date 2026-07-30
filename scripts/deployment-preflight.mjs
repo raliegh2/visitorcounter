@@ -10,9 +10,7 @@ const required = [
   "SUPABASE_ACCESS_TOKEN",
   "SUPABASE_PROJECT_ID",
   "SUPABASE_DB_PASSWORD",
-  "VERCEL_TOKEN",
-  "VERCEL_ORG_ID",
-  "VERCEL_PROJECT_ID"
+  "RENDER_DEPLOY_HOOK_URL"
 ];
 
 const missing = required.filter((name) => !process.env[name]);
