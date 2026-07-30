@@ -1,0 +1,18 @@
+name: Export Dev Tree
+
+on:
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  export-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Print dev tree object
+        run: echo "DEV_TREE_SHA=$(git rev-parse origin/dev^{tree})"
