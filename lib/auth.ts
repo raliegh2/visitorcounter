@@ -27,25 +27,13 @@ export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise
     redirect("/unauthorized");
   }
 
-  if (profile.role === "administrator") {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (data?.nextLevel === "aal2" && data.currentLevel !== "aal2") {
-      redirect("/mfa?next=/dashboard");
-    }
-  }
-
   return profile;
 }
 
+/**
+ * Compatibility wrapper for existing administrator call sites.
+ * The application no longer requires an authenticator-app challenge.
+ */
 export async function requireAdminAal2(): Promise<UserProfile> {
-  const profile = await requireProfile(["administrator"]);
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-  if (error || data?.currentLevel !== "aal2") {
-    redirect("/mfa?next=/dashboard");
-  }
-
-  return profile;
+  return requireProfile(["administrator"]);
 }

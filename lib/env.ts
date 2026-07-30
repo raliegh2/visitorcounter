@@ -1,9 +1,11 @@
 import { z } from "zod";
 
+const normalizedUrl = z.url().transform((value) => value.replace(/\/+$/, ""));
+
 const publicSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.url(),
+  NEXT_PUBLIC_SUPABASE_URL: normalizedUrl,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(20),
-  NEXT_PUBLIC_APP_URL: z.url()
+  NEXT_PUBLIC_APP_URL: normalizedUrl
 });
 
 export function publicEnv() {
