@@ -4,21 +4,22 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { publicEnv } from "@/lib/env";
 import { stringField } from "@/lib/form-data";
-import { z } from "zod";
-
-const requestAccessSchema = z.object({
-  displayName: z.string().trim().min(2).max(80),
-  email: z.email().max(254)
-});
+import { signupSchema } from "@/lib/schemas";
 
 export async function requestStaffAccess(formData: FormData) {
-  const parsed = requestAccessSchema.safeParse({
+  const parsed = signupSchema.safeParse({
     displayName: stringField(formData, "displayName"),
-    email: stringField(formData, "email")
+    email: stringField(formData, "email"),
+    requestedRole: stringField(formData, "requestedRole") || "usher",
+    churchName: stringField(formData, "churchName"),
+    pastorName: stringField(formData, "pastorName"),
+    district: stringField(formData, "district"),
+    denomination: stringField(formData, "denomination"),
+    churchPhone: stringField(formData, "churchPhone")
   });
 
   if (!parsed.success) {
-    redirect("/signup?error=Enter+a+valid+full+name+and+email+address.");
+    redirect(`/signup?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Enter valid account details.")}`);
   }
 
   const supabase = await createClient();
@@ -27,21 +28,26 @@ export async function requestStaffAccess(formData: FormData) {
     email: parsed.data.email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/dashboard`,
-      data: { display_name: parsed.data.displayName }
+      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/signup/pending`,
+      data: {
+        display_name: parsed.data.displayName,
+        requested_role: parsed.data.requestedRole,
+        church_name: parsed.data.churchName || null,
+        pastor_name: parsed.data.pastorName || null,
+        district: parsed.data.district || null,
+        denomination: parsed.data.denomination || null,
+        church_phone: parsed.data.churchPhone || null
+      }
     }
   });
 
   if (error) {
-    console.error("Self-registration request failed", {
-      code: error.code ?? "unknown",
-      status: error.status ?? 0,
-      message: error.message
-    });
-
-    const safeCode = encodeURIComponent(error.code ?? "auth_error");
-    redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${safeCode}`);
+    console.error("Self-registration request failed", { code: error.code ?? "unknown", status: error.status ?? 0 });
+    redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${encodeURIComponent(error.code ?? "auth_error")}`);
   }
 
-  redirect("/login?notice=Check+your+email+for+the+secure+sign-in+link.+After+confirmation,+you+will+enter+the+system+as+an+usher.");
+  const message = parsed.data.requestedRole === "usher"
+    ? "Check your email for the secure sign-in link. Usher access is available after email confirmation."
+    : `Check your email for the secure link. A church administrator must approve your ${parsed.data.requestedRole} request.`;
+  redirect(`/login?notice=${encodeURIComponent(message)}`);
 }

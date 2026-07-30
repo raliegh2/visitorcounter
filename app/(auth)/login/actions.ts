@@ -17,9 +17,7 @@ export async function loginAction(formData: FormData) {
     next: safeNext(stringField(formData, "next") || "/dashboard")
   });
 
-  if (!parsed.success) {
-    redirect("/login?error=Enter+a+valid+email+and+password.");
-  }
+  if (!parsed.success) redirect("/login?error=Enter+a+valid+email+and+password.");
 
   const supabase = await createClient();
   const { data: authData, error } = await supabase.auth.signInWithPassword({
@@ -27,16 +25,11 @@ export async function loginAction(formData: FormData) {
     password: parsed.data.password
   });
 
-  if (error || !authData.user) {
-    redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
-  }
+  if (error || !authData.user) redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
 
-  // Administrators can read every profile in their organization. Scope this
-  // lookup to the user who just authenticated so `.single()` cannot fail when
-  // the organization contains more than one staff profile.
   const { data: profile, error: profileError } = await supabase
     .from("user_profiles")
-    .select("active, role")
+    .select("active, role_status")
     .eq("id", authData.user.id)
     .single();
 
@@ -45,6 +38,7 @@ export async function loginAction(formData: FormData) {
     redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
   }
 
+  if (profile.role_status !== "approved") redirect("/signup/pending");
   redirect(parsed.data.next);
 }
 
