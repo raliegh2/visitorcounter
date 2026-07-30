@@ -5,7 +5,7 @@ import { callRpc } from "@/lib/supabase/rpc";
 import { chooseService, getAvailableServices } from "@/lib/data";
 import { ServicePicker } from "@/components/ServicePicker";
 
- type AttendanceMetrics = {
+type AttendanceMetrics = {
   attending: number;
   first_time: number;
   returning: number;
@@ -65,32 +65,16 @@ export default async function DashboardPage({
           {canCheckIn && service ? (
             <Link className="button button-primary" href={`/visitors?service=${service.id}`}>Register or find visitor</Link>
           ) : null}
-          <Link className="button button-secondary" href="/care">Open care workspace</Link>
+          {canCheckIn ? <Link className="button button-secondary" href="/care">Open care workspace</Link> : null}
           {canCareForMembers ? <Link className="button button-secondary" href="/members">View members</Link> : null}
         </div>
       </section>
 
       <section className="metric-grid" aria-label="Ministry overview">
-        <article>
-          <div className="metric-symbol" aria-hidden="true">V</div>
-          <span>Visitors</span>
-          <strong>{ministry.visitor_records}</strong>
-        </article>
-        <article>
-          <div className="metric-symbol" aria-hidden="true">M</div>
-          <span>Members</span>
-          <strong>{ministry.member_records}</strong>
-        </article>
-        <article>
-          <div className="metric-symbol" aria-hidden="true">♡</div>
-          <span>Open care needs</span>
-          <strong>{ministry.open_care_needs}</strong>
-        </article>
-        <article>
-          <div className="metric-symbol" aria-hidden="true">✓</div>
-          <span>Completed visits</span>
-          <strong>{ministry.completed_visits}</strong>
-        </article>
+        <article><div className="metric-symbol" aria-hidden="true">V</div><span>Visitors</span><strong>{ministry.visitor_records}</strong></article>
+        <article><div className="metric-symbol" aria-hidden="true">M</div><span>Members</span><strong>{ministry.member_records}</strong></article>
+        <article><div className="metric-symbol" aria-hidden="true">♡</div><span>Open care needs</span><strong>{ministry.open_care_needs}</strong></article>
+        <article><div className="metric-symbol" aria-hidden="true">✓</div><span>Completed visits</span><strong>{ministry.completed_visits}</strong></article>
       </section>
 
       <header className="page-header" style={{ marginTop: 28 }}>
@@ -120,33 +104,15 @@ export default async function DashboardPage({
       )}
 
       <section className="grid grid-4">
-        <div className="card metric">
-          <div><div className="metric-label">Total present</div><div className="metric-value">{attendance.attending}</div></div>
-          <div className="metric-icon" aria-hidden="true">✓</div>
-        </div>
-        <div className="card metric">
-          <div><div className="metric-label">First-time visitors</div><div className="metric-value">{attendance.first_time}</div></div>
-          <div className="metric-icon" aria-hidden="true">★</div>
-        </div>
-        <div className="card metric">
-          <div><div className="metric-label">Returning visitors</div><div className="metric-value">{attendance.returning}</div></div>
-          <div className="metric-icon" aria-hidden="true">↻</div>
-        </div>
-        <div className="card metric">
-          <div><div className="metric-label">Active visitor records</div><div className="metric-value">{attendance.visitor_records}</div></div>
-          <div className="metric-icon" aria-hidden="true">◎</div>
-        </div>
+        <div className="card metric"><div><div className="metric-label">Total present</div><div className="metric-value">{attendance.attending}</div></div><div className="metric-icon" aria-hidden="true">✓</div></div>
+        <div className="card metric"><div><div className="metric-label">First-time visitors</div><div className="metric-value">{attendance.first_time}</div></div><div className="metric-icon" aria-hidden="true">★</div></div>
+        <div className="card metric"><div><div className="metric-label">Returning visitors</div><div className="metric-value">{attendance.returning}</div></div><div className="metric-icon" aria-hidden="true">↻</div></div>
+        <div className="card metric"><div><div className="metric-label">Active visitor records</div><div className="metric-value">{attendance.visitor_records}</div></div><div className="metric-icon" aria-hidden="true">◎</div></div>
       </section>
 
       <section className="grid grid-2" style={{ marginTop: 18 }}>
-        <div className="card">
-          <h2>Follow-up workflow</h2>
-          <p className="muted">Register a person, document an appropriate support need and record each completed visit or follow-up.</p>
-        </div>
-        <div className="card">
-          <h2>Privacy reminder</h2>
-          <p className="muted">Record only information needed for ministry care and limit sensitive notes to the appropriate team.</p>
-        </div>
+        <div className="card"><h2>Follow-up workflow</h2><p className="muted">Register a person, document an appropriate support need and record each completed visit or follow-up.</p></div>
+        <div className="card"><h2>Privacy reminder</h2><p className="muted">Record only information needed for ministry care and limit sensitive notes to the appropriate team.</p></div>
       </section>
     </>
   );
