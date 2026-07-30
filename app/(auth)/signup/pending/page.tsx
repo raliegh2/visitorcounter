@@ -26,7 +26,9 @@ export default async function SignupPendingPage() {
     profile = data as unknown as PendingProfile | null;
   }
 
-  const approved = profile?.active === true && profile.role_status === "approved";
+  const approvedProfile = profile?.active === true && profile.role_status === "approved"
+    ? profile
+    : null;
   const rejected = profile?.role_status === "rejected";
 
   return (
@@ -40,12 +42,12 @@ export default async function SignupPendingPage() {
           </div>
         </div>
 
-        {approved ? (
+        {approvedProfile ? (
           <>
             <div className="status-symbol status-approved" aria-hidden="true">✓</div>
             <h1>Access approved</h1>
             <p>
-              Your {profile.requested_role.replace("_", " ")} account is active. Continue to the ministry dashboard.
+              Your {approvedProfile.requested_role.replace("_", " ")} account is active. Continue to the ministry dashboard.
             </p>
             <Link className="button button-primary button-full" href="/dashboard">Open dashboard</Link>
           </>
