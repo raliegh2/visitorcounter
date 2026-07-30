@@ -84,17 +84,19 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
   let activeProfile = false;
+  let approvedProfile = false;
 
   if (user) {
     const { data: profile } = await supabase
       .from("user_profiles")
-      .select("active")
+      .select("active, role_status")
       .eq("id", user.id)
       .maybeSingle();
     activeProfile = profile?.active === true;
+    approvedProfile = activeProfile && profile?.role_status === "approved";
   }
 
-  if (user && !activeProfile) {
+  if (user && !approvedProfile) {
     if (pathname === "/signup/pending") {
       response.headers.set("Content-Security-Policy", csp);
       response.headers.set("Cache-Control", "private, no-store");
@@ -120,7 +122,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && activeProfile && (pathname === "/login" || pathname === "/signup" || pathname === "/signup/pending")) {
+  if (user && approvedProfile && (pathname === "/login" || pathname === "/signup" || pathname === "/signup/pending")) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";
