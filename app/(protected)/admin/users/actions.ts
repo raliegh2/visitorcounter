@@ -49,7 +49,7 @@ export async function inviteUserAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error: roleError } = await supabase.rpc("set_user_role", {
+  const { error: roleError } = await callRpc<null>(supabase, "set_user_role", {
     p_user_id: data.user.id,
     p_role: parsed.data.role
   });
@@ -81,7 +81,7 @@ export async function changeUserRoleAction(formData: FormData) {
   if (!parsed.success) redirect("/admin/users?error=The+role+change+is+invalid.");
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_user_role", {
+  const { error } = await callRpc<null>(supabase, "set_user_role", {
     p_user_id: parsed.data.userId,
     p_role: parsed.data.role
   });
