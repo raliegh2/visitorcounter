@@ -14,6 +14,14 @@ export type Permission =
   | "audit:view"
   | "retention:manage";
 
+const visitorTeamPermissions: ReadonlySet<Permission> = new Set([
+  "dashboard:view",
+  "visitor:search",
+  "visitor:create",
+  "attendance:view",
+  "attendance:create"
+]);
+
 const permissions: Record<AppRole, ReadonlySet<Permission>> = {
   administrator: new Set([
     "dashboard:view",
@@ -29,13 +37,8 @@ const permissions: Record<AppRole, ReadonlySet<Permission>> = {
     "audit:view",
     "retention:manage"
   ]),
-  usher: new Set([
-    "dashboard:view",
-    "visitor:search",
-    "visitor:create",
-    "attendance:view",
-    "attendance:create"
-  ]),
+  usher: visitorTeamPermissions,
+  pastor: visitorTeamPermissions,
   auditor: new Set([
     "dashboard:view",
     "report:view"
