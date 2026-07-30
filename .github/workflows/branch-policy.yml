@@ -17,14 +17,24 @@ jobs:
           BASE="${{ github.base_ref }}"
           HEAD="${{ github.head_ref }}"
 
-          if [[ "$BASE" == "main" && "$HEAD" != "staging" ]]; then
-            echo "Production pull requests must come from staging."
-            exit 1
+          if [[ "$BASE" == "main" ]]; then
+            case "$HEAD" in
+              staging|hotfix/*) ;;
+              *)
+                echo "Production pull requests must come from staging or an approved hotfix branch."
+                exit 1
+                ;;
+            esac
           fi
 
-          if [[ "$BASE" == "staging" && "$HEAD" != "dev" ]]; then
-            echo "Staging pull requests must come from dev."
-            exit 1
+          if [[ "$BASE" == "staging" ]]; then
+            case "$HEAD" in
+              dev|hotfix/*) ;;
+              *)
+                echo "Staging pull requests must come from dev or an approved hotfix branch."
+                exit 1
+                ;;
+            esac
           fi
 
           if [[ "$BASE" == "dev" ]]; then
