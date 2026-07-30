@@ -20,8 +20,8 @@ function parseCsv(text: string): string[][] {
   let quoted = false;
 
   for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const next = text[index + 1];
+    const character = text.charAt(index);
+    const next = text.charAt(index + 1);
 
     if (character === '"' && quoted && next === '"') {
       field += '"';
@@ -52,8 +52,10 @@ function normalizeHeader(value: string): string {
 }
 
 function mapRows(table: string[][]): ImportRow[] {
-  if (table.length < 2) return [];
-  const headers = table[0].map(normalizeHeader);
+  const headerRow = table[0];
+  if (!headerRow || table.length < 2) return [];
+
+  const headers = headerRow.map(normalizeHeader);
   const aliases: Record<keyof ImportRow, string[]> = {
     first_name: ["first_name", "firstname", "first"],
     last_name: ["last_name", "lastname", "last", "surname"],
