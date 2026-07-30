@@ -22,21 +22,25 @@ export async function loginAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password
   });
 
-  if (error) {
+  if (error || !authData.user) {
     redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
   }
 
-  const { data: profile } = await supabase
+  // Administrators can read every profile in their organization. Scope this
+  // lookup to the user who just authenticated so `.single()` cannot fail when
+  // the organization contains more than one staff profile.
+  const { data: profile, error: profileError } = await supabase
     .from("user_profiles")
     .select("active, role")
+    .eq("id", authData.user.id)
     .single();
 
-  if (!profile?.active) {
+  if (profileError || !profile?.active) {
     await supabase.auth.signOut();
     redirect("/login?error=Sign-in+failed.+Check+your+credentials+or+account+status.");
   }
