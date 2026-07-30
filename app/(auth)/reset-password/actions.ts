@@ -10,7 +10,7 @@ import {
 import { stringField } from "@/lib/form-data";
 import { z } from "zod";
 
-const passwordSchema = z.string().min(12).max(128);
+const passwordSchema = z.string().min(12).max(72);
 
 const schema = z
   .object({
@@ -23,6 +23,18 @@ const schema = z
   });
 
 const requirementsMessage = "Use matching passwords with at least 12 characters.";
+
+type RecoveryRpcError = {
+  code?: string;
+  message: string;
+};
+
+type RecoveryRpcClient = {
+  rpc: (
+    name: "reset_password_without_mfa",
+    args: { p_user_id: string; p_password: string }
+  ) => Promise<{ error: RecoveryRpcError | null }>;
+};
 
 export async function updatePasswordAction(formData: FormData) {
   const parsed = schema.safeParse({
@@ -48,47 +60,28 @@ export async function updatePasswordAction(formData: FormData) {
     );
   }
 
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.updateUserById(user.id, {
-    password: parsed.data.password
+  // The service-role-only RPC performs the same password-state cleanup as
+  // GoTrue while enforcing the application's length-only rule. It also removes
+  // TOTP factors and revokes all sessions, so recovery never depends on an
+  // authenticator device or hosted character-class settings.
+  const admin = createAdminClient() as unknown as RecoveryRpcClient;
+  const { error } = await admin.rpc("reset_password_without_mfa", {
+    p_user_id: user.id,
+    p_password: parsed.data.password
   });
 
   if (error) {
-    const message =
-      error.code === "weak_password"
-        ? requirementsMessage
-        : error.code === "same_password"
-          ? "Choose a password that is different from your current password."
-          : "The password could not be updated. Request a new reset link and try again.";
-    redirect(`/reset-password?error=${encodeURIComponent(message)}`);
-  }
-
-  // Authenticator-app MFA is no longer offered by this application. Remove any
-  // factors from the recovered account so future password changes are not tied
-  // to a device the user may no longer have.
-  const { data: factorData, error: factorListError } = await admin.auth.admin.mfa.listFactors({
-    userId: user.id
-  });
-
-  if (factorListError) {
-    console.error("Unable to list MFA factors after password recovery", {
-      code: factorListError.code ?? "unknown",
-      status: factorListError.status ?? 0
+    console.error("Password recovery RPC failed", {
+      code: error.code ?? "unknown",
+      message: error.message
     });
-  } else {
-    for (const factor of factorData.factors) {
-      const { error: deleteFactorError } = await admin.auth.admin.mfa.deleteFactor({
-        id: factor.id,
-        userId: user.id
-      });
 
-      if (deleteFactorError) {
-        console.error("Unable to remove MFA factor after password recovery", {
-          code: deleteFactorError.code ?? "unknown",
-          status: deleteFactorError.status ?? 0
-        });
-      }
-    }
+    const message = error.message.includes("different from your current password")
+      ? "Choose a password that is different from your current password."
+      : error.code === "22023"
+        ? requirementsMessage
+        : "The password could not be updated. Request a new reset link and try again.";
+    redirect(`/reset-password?error=${encodeURIComponent(message)}`);
   }
 
   await clearPasswordRecoveryAuthorization();
