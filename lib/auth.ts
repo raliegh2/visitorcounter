@@ -11,7 +11,7 @@ export const getCurrentProfile = cache(async (): Promise<UserProfile | null> => 
 
   const { data, error } = await supabase
     .from("user_profiles")
-    .select("id, organization_id, display_name, role, active, created_at, updated_at")
+    .select("id, organization_id, display_name, role, requested_role, role_status, active, created_at, updated_at")
     .eq("id", user.id)
     .single();
 
@@ -23,6 +23,10 @@ export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
 
+  if (profile.role_status !== "approved") {
+    redirect("/signup/pending");
+  }
+
   if (allowedRoles && !allowedRoles.includes(profile.role)) {
     redirect("/unauthorized");
   }
@@ -30,10 +34,7 @@ export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise
   return profile;
 }
 
-/**
- * Compatibility wrapper for existing administrator call sites.
- * The application no longer requires an authenticator-app challenge.
- */
+/** Compatibility wrapper retained for existing administrator call sites. */
 export async function requireAdminAal2(): Promise<UserProfile> {
   return requireProfile(["administrator"]);
 }
