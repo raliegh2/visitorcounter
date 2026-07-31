@@ -1,0 +1,79 @@
+name: Dependency Repair
+
+on:
+  push:
+    branches:
+      - feature/integrate-care-hub
+    paths:
+      - .github/workflows/dependency-repair.yml
+      - package.json
+      - package-lock.json
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/integrate-care-hub
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Pin patched direct dependencies
+        shell: node {0}
+        run: |
+          const fs = require('node:fs');
+          const path = 'package.json';
+          const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+          pkg.dependencies.next = '16.2.12';
+          pkg.devDependencies['eslint-config-next'] = '16.2.12';
+          pkg.overrides = {
+            ...(pkg.overrides ?? {}),
+            postcss: '8.5.23',
+            sharp: '0.35.3'
+          };
+
+          fs.writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
+
+      - name: Refresh lockfile and compatible transitive dependencies
+        run: |
+          npm install --legacy-peer-deps
+          npm audit fix --legacy-peer-deps
+
+      - name: Verify dependency audit
+        run: npm audit --audit-level=high
+
+      - name: Verify application
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.invalid
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-publishable-placeholder-1234567890
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          SUPABASE_SERVICE_ROLE_KEY: ci-service-role-placeholder-1234567890
+          REAUTH_COOKIE_SECRET: ci-cookie-placeholder-12345678901234567890
+
+      - name: Commit repaired dependency files
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo 'Dependency files already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json
+          git commit -m 'chore: update vulnerable dependencies'
+          git push origin HEAD:feature/integrate-care-hub
