@@ -42,13 +42,14 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "eslint": "9.29.0",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "16.2.12",
     "supabase": "2.107.0",
     "typescript": "5.9.2",
     "vitest": "3.2.6"
   },
   "overrides": {
-    "postcss": "8.5.10",
+    "postcss": "8.5.23",
+    "sharp": "0.35.3",
     "esbuild": "0.28.1"
   }
 }
