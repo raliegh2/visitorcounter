@@ -1,0 +1,59 @@
+name: Regenerate audited lock
+
+on:
+  push:
+    branches:
+      - fix/a
+    paths:
+      - .github/workflows/regenerate-lock.yml
+      - package.json
+      - package-lock.json
+      - .dependency-validation
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/a
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Regenerate lockfile from the patched dependency graph
+        run: |
+          rm -f package-lock.json
+          npm install --legacy-peer-deps
+
+      - name: Verify high-severity dependency audit
+        run: npm audit --audit-level=high
+
+      - name: Verify application
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.invalid
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-publishable-placeholder-1234567890
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+          SUPABASE_SERVICE_ROLE_KEY: ci-service-role-placeholder-1234567890
+          REAUTH_COOKIE_SECRET: ci-cookie-placeholder-12345678901234567890
+
+      - name: Commit verified lockfile
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          git commit -m 'chore: commit audited dependency lock'
+          git push origin HEAD:fix/a
