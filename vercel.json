@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["iad1"],
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "node scripts/export-dependency-lock.mjs && npm audit --audit-level=high && npm run lint && npm run typecheck && npm test && npm run build",
+  "installCommand": "rm -f package-lock.json && npm install --legacy-peer-deps",
   "headers": [
     {
       "source": "/api/(.*)",
