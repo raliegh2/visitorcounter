@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { loginAction } from "@/app/(auth)/login/actions";
 import { Notice } from "@/components/ui/Notice";
-import Link from "next/link";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata = { title: "Sign in" };
@@ -15,24 +15,27 @@ export default async function LoginPage({
   return (
     <main className="login-shell">
       <section className="login-hero">
-        <div className="eyebrow" style={{ color: "#bfdbfe" }}>Private staff workspace</div>
-        <h1>Welcome visitors with care and confidence.</h1>
+        <div className="eyebrow" style={{ color: "#ded9fb" }}>Private ministry workspace</div>
+        <h1>Welcome people well. Keep every care step visible.</h1>
         <p>
-          Register first-time visitors, check in returning visitors, and manage service attendance
-          through a role-restricted system designed around minimum data collection.
+          Manage visitor welcome, attendance, member care, support notes, ministry visits, reporting,
+          and role-based oversight through one protected workspace.
         </p>
         <div className="login-points">
-          <div className="login-point"><span>✓</span><strong>Individual staff accounts</strong></div>
-          <div className="login-point"><span>✓</span><strong>Server and database authorization</strong></div>
-          <div className="login-point"><span>✓</span><strong>Auditable attendance corrections</strong></div>
+          <div className="login-point"><span>✓</span><strong>Clear responsibilities for every role</strong></div>
+          <div className="login-point"><span>✓</span><strong>Visitor and member care in one place</strong></div>
+          <div className="login-point"><span>✓</span><strong>Organization-scoped access and audit history</strong></div>
         </div>
       </section>
 
       <section className="login-panel">
         <div className="login-card">
-          <div className="eyebrow">Staff access</div>
+          <div className="brand auth-brand">
+            <div className="brand-mark" aria-hidden="true">✦</div>
+            <div><strong>Church Care Hub</strong><span>Ministry workspace</span></div>
+          </div>
           <h2>Sign in</h2>
-          <p className="muted">Use your assigned password, or request a secure email link below.</p>
+          <p className="muted">Use your assigned password or request secure email access.</p>
           <Notice message={params.error} kind="error" />
           <Notice message={params.notice} kind="success" />
 
@@ -54,9 +57,9 @@ export default async function LoginPage({
           </form>
 
           <hr className="divider" />
-          <div className="actions" style={{ justifyContent: "space-between" }}>
-            <Link href="/forgot-password">Forgot your password?</Link>
-            <Link href="/signup">Create account or email sign-in</Link>
+          <div className="auth-links">
+            <Link href="/forgot-password">Forgot password?</Link>
+            <Link href="/signup">Create account</Link>
           </div>
         </div>
       </section>
