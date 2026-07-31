@@ -37,7 +37,7 @@ export default async function LoginPage({
             </div>
             <div className="field">
               <label htmlFor="password">Password</label>
-              <input id="password" name="password" type="password" autoComplete="current-password" minLength={12} maxLength={128} required />
+              <input id="password" name="password" type="password" autoComplete="current-password" maxLength={128} required />
             </div>
             <div className="field">
               <SubmitButton className="button button-primary button-full" pendingLabel="Signing in…">

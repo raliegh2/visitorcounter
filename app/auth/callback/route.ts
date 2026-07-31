@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { markPasswordRecoveryAuthorized } from "@/lib/password-recovery";
 
 const emailOtpTypes = new Set<EmailOtpType>([
   "email",
@@ -34,8 +35,11 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
 
   if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (!error) {
+      if (type === "recovery" && data.user?.id) {
+        await markPasswordRecoveryAuthorized(data.user.id);
+      }
       return NextResponse.redirect(new URL(next, url.origin));
     }
 
@@ -45,10 +49,13 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // Keep compatibility with older PKCE links that Supabase already sent.
+  // Keep compatibility with authorization-code links that Supabase already sent.
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      if (next === "/reset-password" && data.session?.user.id) {
+        await markPasswordRecoveryAuthorized(data.session.user.id);
+      }
       return NextResponse.redirect(new URL(next, url.origin));
     }
 

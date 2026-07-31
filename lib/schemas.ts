@@ -17,7 +17,8 @@ const optionalDate = z.union([z.literal(""), z.iso.date()]);
 
 export const loginSchema = z.object({
   email: z.email().max(254),
-  password: z.string().min(12).max(128),
+  // Sign-in must accept existing passwords even if an older account used a shorter password.
+  password: z.string().min(1).max(128),
   next: z.string().startsWith("/").max(200).default("/dashboard")
 });
 

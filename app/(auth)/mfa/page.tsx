@@ -1,15 +1,8 @@
-import { Suspense } from "react";
-import { MfaClient } from "./MfaClient";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Multi-factor authentication" };
-export const dynamic = "force-dynamic";
+export const metadata = { title: "Sign in" };
 
 export default function MfaPage() {
-  return (
-    <main className="login-panel" style={{ minHeight: "100vh" }}>
-      <Suspense fallback={<div className="login-card">Loading authentication challenge…</div>}>
-        <MfaClient />
-      </Suspense>
-    </main>
-  );
+  // Authenticator-app MFA is no longer part of the application access flow.
+  redirect("/dashboard");
 }
