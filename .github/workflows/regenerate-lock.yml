@@ -1,6 +1,14 @@
 name: Regenerate audited lock
 
 on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - .github/workflows/regenerate-lock.yml
+      - package.json
+      - package-lock.json
+      - .dependency-validation
   push:
     branches:
       - fix/a
