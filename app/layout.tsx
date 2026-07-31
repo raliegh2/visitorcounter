@@ -3,10 +3,10 @@ import "@/app/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Church Visitor Attendance System",
-    template: "%s | Church Visitor Attendance"
+    default: "Church Care Hub",
+    template: "%s | Church Care Hub"
   },
-  description: "Private staff-only visitor and service attendance management."
+  description: "Private role-based visitor, member, attendance, care, and ministry follow-up workspace."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
