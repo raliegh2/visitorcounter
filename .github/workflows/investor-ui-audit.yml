@@ -1,11 +1,10 @@
 name: Investor UI Audit
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/integrate-care-hub
-    paths:
-      - .github/workflows/investor-ui-audit.yml
+      - dev
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
