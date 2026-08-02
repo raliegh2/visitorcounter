@@ -1,0 +1,32 @@
+name: Investor UI Audit
+
+on:
+  push:
+    branches:
+      - feature/integrate-care-hub
+    paths:
+      - .github/workflows/investor-ui-audit.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build UI control inventory
+        run: |
+          mkdir -p audit-output
+          find app components -type f \( -name '*.tsx' -o -name '*.ts' -o -name '*.css' \) -print0 \
+            | sort -z \
+            | xargs -0 grep -nE '<button|<Link|<a |type="submit"|formAction=|action=|onClick=|href=|disabled=|aria-disabled|Coming soon|TODO|placeholder' \
+            > audit-output/control-inventory.txt || true
+          tar -czf audit-output/ui-source.tar.gz app components lib tests package.json package-lock.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: investor-ui-audit
+          path: audit-output
+          retention-days: 2
