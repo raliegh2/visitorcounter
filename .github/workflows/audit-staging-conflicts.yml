@@ -6,10 +6,11 @@ on:
       - chore/audit-staging-conflicts
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   audit:
+    if: ${{ !contains(github.event.head_commit.message, 'record staging conflict audit') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,25 +21,28 @@ jobs:
       - name: Attempt staging merge and capture conflicts
         shell: bash
         run: |
-          mkdir -p conflict-output
+          rm -rf .audit/staging-conflicts
+          mkdir -p .audit/staging-conflicts
           git fetch origin staging
           set +e
           git merge --no-commit --no-ff origin/staging
           MERGE_STATUS=$?
           set -e
-          printf 'merge_status=%s\n' "$MERGE_STATUS" > conflict-output/summary.txt
-          git diff --name-only --diff-filter=U | tee conflict-output/conflicts.txt
+          printf 'merge_status=%s\n' "$MERGE_STATUS" > .audit/staging-conflicts/summary.txt
+          git diff --name-only --diff-filter=U | tee .audit/staging-conflicts/conflicts.txt
           while IFS= read -r file; do
             [ -n "$file" ] || continue
             safe=$(printf '%s' "$file" | tr '/ ' '__')
-            git show ":1:$file" > "conflict-output/${safe}.base" 2>/dev/null || true
-            git show ":2:$file" > "conflict-output/${safe}.dev" 2>/dev/null || true
-            git show ":3:$file" > "conflict-output/${safe}.staging" 2>/dev/null || true
-          done < conflict-output/conflicts.txt
+            git show ":1:$file" > ".audit/staging-conflicts/${safe}.base" 2>/dev/null || true
+            git show ":2:$file" > ".audit/staging-conflicts/${safe}.dev" 2>/dev/null || true
+            git show ":3:$file" > ".audit/staging-conflicts/${safe}.staging" 2>/dev/null || true
+          done < .audit/staging-conflicts/conflicts.txt
           git merge --abort || true
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: staging-conflict-audit
-          path: conflict-output
-          retention-days: 2
+      - name: Record audit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .audit/staging-conflicts
+          git commit -m "chore: record staging conflict audit"
+          git push origin HEAD:chore/audit-staging-conflicts
