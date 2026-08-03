@@ -96,7 +96,7 @@ update public.care_notes
 set status = case when status = 'resolved' then 'resolved' else 'open' end,
     visibility = case when visibility = 'admin_only' then 'administrator' else visibility end,
     resolved_at = case
-      when status = 'resolved' then coalesce(resolved_at, updated_at, created_at)
+      when status = 'resolved' then coalesce(resolved_at, created_at)
       else null
     end;
 alter table public.care_notes
