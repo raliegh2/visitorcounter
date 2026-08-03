@@ -1,0 +1,53 @@
+name: Open production release PR
+
+on:
+  push:
+    branches:
+      - chore/open-production-pr
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open staging to main release PR
+        shell: bash
+        run: |
+          cat > /tmp/release-body.md <<'EOF'
+          ## Production release
+
+          Promotes the fully validated investor-ready Church Care Hub release from `staging` to `main`.
+
+          ### Included
+          - Visitor, attendance, member, care, visit, CSV import, approval, reporting, and audit workflows
+          - Professional navy, teal, warm-neutral, and restrained gold interface
+          - Complete control audit with functional actions and visible pending feedback
+          - Pastor onboarding and administrator verification
+          - Authentication, account-state, dependency, database, RLS, and security hardening
+
+          ### Release validation
+          - Staging promotion policy passed
+          - Lint and strict TypeScript passed
+          - Unit and UI-control regression tests passed
+          - Production build passed
+          - Dependency audit passed
+          - Supabase startup and pgTAP tests passed
+          - Source scanning, Gitleaks, and CodeQL passed
+          - Vercel preview passed
+
+          Production deployment will run through the repository's protected deployment workflow after merge.
+          EOF
+
+          if gh pr list --base main --head staging --state open --json number --jq 'length' | grep -qx 0; then
+            gh pr create \
+              --base main \
+              --head staging \
+              --title "Release investor-ready Church Care Hub to production" \
+              --body-file /tmp/release-body.md
+          fi
