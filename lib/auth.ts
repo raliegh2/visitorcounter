@@ -14,9 +14,10 @@ export const getCurrentProfile = cache(async (): Promise<UserProfile | null> => 
     .select("id, organization_id, display_name, role, requested_role, role_status, active, created_at, updated_at")
     .eq("id", user.id)
     .single();
+  const profile = data as unknown as UserProfile | null;
 
-  if (error || !data || !data.active) return null;
-  return data as UserProfile;
+  if (error || !profile || !profile.active) return null;
+  return profile;
 });
 
 export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise<UserProfile> {
@@ -34,7 +35,10 @@ export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise
   return profile;
 }
 
-/** Compatibility wrapper retained for existing administrator call sites. */
+/**
+ * Compatibility wrapper for existing administrator call sites.
+ * The application no longer requires an authenticator-app challenge.
+ */
 export async function requireAdminAal2(): Promise<UserProfile> {
   return requireProfile(["administrator"]);
 }

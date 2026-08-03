@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { loginAction } from "@/app/(auth)/login/actions";
 import { Notice } from "@/components/ui/Notice";
+import Link from "next/link";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata = { title: "Sign in" };
@@ -13,29 +13,19 @@ export default async function LoginPage({
   const params = await searchParams;
 
   return (
-    <main className="login-shell">
-      <section className="login-hero">
-        <div className="eyebrow" style={{ color: "#ded9fb" }}>Private ministry workspace</div>
-        <h1>Welcome people well. Keep every care step visible.</h1>
-        <p>
-          Manage visitor welcome, attendance, member care, support notes, ministry visits, reporting,
-          and role-based oversight through one protected workspace.
-        </p>
-        <div className="login-points">
-          <div className="login-point"><span>✓</span><strong>Clear responsibilities for every role</strong></div>
-          <div className="login-point"><span>✓</span><strong>Visitor and member care in one place</strong></div>
-          <div className="login-point"><span>✓</span><strong>Organization-scoped access and audit history</strong></div>
-        </div>
-      </section>
-
-      <section className="login-panel">
-        <div className="login-card">
+    <main className="auth-layout">
+      <section className="auth-panel">
+        <div className="auth-card">
           <div className="brand auth-brand">
             <div className="brand-mark" aria-hidden="true">✦</div>
-            <div><strong>Church Care Hub</strong><span>Ministry workspace</span></div>
+            <div>
+              <strong>Church Care Hub</strong>
+              <span>Visitor, member and ministry care</span>
+            </div>
           </div>
-          <h2>Sign in</h2>
-          <p className="muted">Use your assigned password or request secure email access.</p>
+
+          <h1>Welcome back.</h1>
+          <p className="muted">Sign in to your secure, role-based ministry workspace.</p>
           <Notice message={params.error} kind="error" />
           <Notice message={params.notice} kind="success" />
 
@@ -56,10 +46,23 @@ export default async function LoginPage({
             </div>
           </form>
 
-          <hr className="divider" />
           <div className="auth-links">
-            <Link href="/forgot-password">Forgot password?</Link>
-            <Link href="/signup">Create account</Link>
+            <Link href="/forgot-password">Forgot your password?</Link>
+            <Link href="/signup">Create ministry account</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-visual">
+        <div>
+          <h2>Welcome every person.<br />Track every follow-up.<br />Support every need.</h2>
+          <p>
+            Register visitors, manage attendance, care for members and keep ministry next steps visible.
+          </p>
+          <div className="auth-proof">
+            <span>Individual staff accounts</span>
+            <span>Database-enforced permissions</span>
+            <span>Auditable care and attendance actions</span>
           </div>
         </div>
       </section>

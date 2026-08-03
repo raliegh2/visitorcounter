@@ -1,56 +1,86 @@
 import Link from "next/link";
+import { logoutAction } from "@/app/(auth)/login/actions";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { createClient } from "@/lib/supabase/server";
-import type { RoleStatus } from "@/types/app";
+import type { AppRole, RoleStatus } from "@/types/app";
+
+export const metadata = { title: "Account status" };
+export const dynamic = "force-dynamic";
 
 type PendingProfile = {
   active: boolean;
-  requested_role: "administrator" | "usher" | "pastor";
+  role: AppRole;
+  requested_role: AppRole;
   role_status: RoleStatus;
 };
-
-export const metadata = { title: "Role request status" };
-export const dynamic = "force-dynamic";
 
 export default async function SignupPendingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  let profile: PendingProfile | null = null;
 
+  let profile: PendingProfile | null = null;
   if (user) {
     const { data } = await supabase
       .from("user_profiles")
-      .select("active, requested_role, role_status")
+      .select("active, role, requested_role, role_status")
       .eq("id", user.id)
       .maybeSingle();
     profile = data as unknown as PendingProfile | null;
   }
 
-  const approved = profile?.active === true && profile.role_status === "approved";
-  const requestedRole = profile?.requested_role ?? "staff";
-  const roleStatus = profile?.role_status ?? "pending";
+  const approvedProfile = profile?.active === true && profile.role_status === "approved"
+    ? profile
+    : null;
+  const rejected = profile?.role_status === "rejected";
 
   return (
-    <main className="login-panel" style={{ minHeight: "100vh" }}>
-      <section className="login-card">
-        <div className="eyebrow">Account status</div>
-        {approved ? (
+    <main className="center-screen status-screen">
+      <section className="status-card">
+        <div className="brand auth-brand">
+          <div className="brand-mark" aria-hidden="true">✦</div>
+          <div>
+            <strong>Church Care Hub</strong>
+            <span>Account status</span>
+          </div>
+        </div>
+
+        {approvedProfile ? (
           <>
+            <div className="status-symbol status-approved" aria-hidden="true">✓</div>
             <h1>Access approved</h1>
-            <p>Your {requestedRole} access is ready.</p>
+            <p>
+              Your {approvedProfile.requested_role.replace("_", " ")} account is active. Continue to the ministry dashboard.
+            </p>
             <Link className="button button-primary button-full" href="/dashboard">Open dashboard</Link>
           </>
-        ) : roleStatus === "rejected" ? (
+        ) : rejected ? (
           <>
-            <h1>Role request not approved</h1>
-            <p>Your requested role was not approved. Contact a church administrator for help.</p>
-            <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
+            <div className="status-symbol status-rejected" aria-hidden="true">×</div>
+            <h1>Request not approved</h1>
+            <p>
+              The pastor-access request could not be verified. Contact a church administrator to review or update the submitted details.
+            </p>
+            <form action={logoutAction} className="status-actions">
+              <SubmitButton className="button button-secondary button-full" pendingLabel="Signing out…">
+                Sign out and return to sign in
+              </SubmitButton>
+            </form>
           </>
         ) : (
           <>
-            <h1>Waiting for approval</h1>
-            <p>Your email is confirmed. A church administrator must approve your {requestedRole} role before protected ministry information is available.</p>
-            <div className="notice notice-info">You may close this page and return after an administrator reviews the request.</div>
-            <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
+            <div className="status-symbol" aria-hidden="true">…</div>
+            <h1>Pastor verification pending</h1>
+            <p>
+              Your email is confirmed. A church administrator must verify the church, district and supervisor information before pastor access is enabled.
+            </p>
+            <div className="notice notice-info">
+              No visitor, member or care information is visible while the request is pending. You may safely close this page and return later.
+            </div>
+            <form action={logoutAction} className="status-actions">
+              <SubmitButton className="button button-secondary button-full" pendingLabel="Signing out…">
+                Sign out and return to sign in
+              </SubmitButton>
+            </form>
           </>
         )}
       </section>

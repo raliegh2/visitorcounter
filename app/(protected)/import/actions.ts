@@ -5,27 +5,37 @@ import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { stringField } from "@/lib/form-data";
 import { memberImportSchema } from "@/lib/schemas";
-import { createClient } from "@/lib/supabase/server";
 import { callRpc } from "@/lib/supabase/rpc";
+import { createClient } from "@/lib/supabase/server";
 
 export async function importMembersAction(formData: FormData) {
   await requireProfile(["administrator", "pastor"]);
-  let rows: unknown;
-  try { rows = JSON.parse(stringField(formData, "rowsJson")); } catch { redirect("/import?error=The+import+preview+is+invalid.+Choose+the+file+again."); }
-  const parsed = memberImportSchema.safeParse(rows);
-  if (!parsed.success) redirect(`/import?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "The member rows are invalid.")}`);
+  const raw = stringField(formData, "rowsJson");
+
+  let candidate: unknown;
+  try {
+    candidate = JSON.parse(raw);
+  } catch {
+    redirect("/import?error=The+import+payload+is+invalid.");
+  }
+
+  const parsed = memberImportSchema.safeParse(candidate);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]?.message ?? "The import contains invalid member data.";
+    redirect(`/import?error=${encodeURIComponent(issue)}`);
+  }
+
   const supabase = await createClient();
-  const payload = parsed.data.map((row) => ({
-    first_name: row.firstName,
-    last_name: row.lastName,
-    email: row.email || null,
-    phone: row.phone || null,
-    address: row.address || null,
-    membership_status: row.membershipStatus,
-    last_contact_at: row.lastContactAt || null
-  }));
-  const { data, error } = await callRpc<number>(supabase, "bulk_import_member_records", { p_rows: payload });
-  if (error) redirect(`/import?error=${encodeURIComponent(error.message || "The member file could not be imported.")}`);
-  revalidatePath("/members"); revalidatePath("/dashboard");
-  redirect(`/members?notice=${encodeURIComponent(`${data ?? payload.length} member records imported.`)}`);
+  const { data, error } = await callRpc<number>(supabase, "bulk_import_members", {
+    p_rows: parsed.data
+  });
+
+  if (error) {
+    redirect("/import?error=The+member+import+could+not+be+completed.");
+  }
+
+  revalidatePath("/members");
+  revalidatePath("/dashboard");
+  revalidatePath("/care");
+  redirect(`/import?notice=${encodeURIComponent(`Imported ${data ?? parsed.data.length} members.`)}`);
 }
