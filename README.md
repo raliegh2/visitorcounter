@@ -6,8 +6,9 @@ follow-up, and administering users, approvals, retention, exports, and audit
 records.
 
 The application keeps the original Church Visitor Attendance System security
-architecture while integrating the Church Care Hub workflows and purple
-responsive design system into the existing Next.js project.
+architecture while integrating the Church Care Hub workflows and a professional
+navy, teal, and warm-neutral responsive design system into the existing Next.js
+project.
 
 ## Integrated features
 
@@ -20,12 +21,13 @@ responsive design system into the existing Next.js project.
 - Usher and pastor self-registration with email confirmation
 - Administrator review of pastor church, district, denomination, supervisor, and phone details
 - Role-aware dashboard metrics for visitors, members, care needs, and completed visits
-- Responsive Church Care Hub navigation and authentication design
+- Responsive investor-grade navigation, authentication, forms, cards, tables, and interactive states
+- Audited controls with real destinations or server actions, pending feedback, and guarded self-administration
 
 ## Production architecture
 
 - Next.js App Router with strict TypeScript
-- Supabase Auth with email/password recovery and TOTP MFA for administrators
+- Supabase Auth with email confirmation, password recovery, and recent-password reauthentication for sensitive administration
 - PostgreSQL with UUID keys, foreign keys, constraints, indexes, and transactional functions
 - Row-Level Security and organization isolation
 - Server Actions and security-definer database functions for validated operations
@@ -38,7 +40,8 @@ responsive design system into the existing Next.js project.
 
 - **Administrator:** users, pastor approvals, roles, services, assignments,
   members, care, reports, corrections, retention, personal-data exports, and
-  audit review. Administrative access requires AAL2 multi-factor authentication.
+  audit review. Sensitive administrative actions require recent password
+  confirmation and include self-lockout protections.
 - **Pastor:** visitor and attendance workflows plus member records, CSV member
   imports, pastoral care notes, and completed visits. Self-requested pastor
   access remains pending until an administrator verifies the submitted ministry
@@ -88,8 +91,7 @@ Start the application:
 npm run dev
 ```
 
-Open `http://localhost:3000`, sign in with the bootstrap administrator, and
-enroll a TOTP authenticator immediately.
+Open `http://localhost:3000` and sign in with the bootstrap administrator.
 
 ## Supabase authentication emails
 
