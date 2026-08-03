@@ -1,0 +1,89 @@
+name: Build production hotfix release
+
+on:
+  push:
+    branches:
+      - hotfix/church-care-hub-production
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/church-care-hub-production
+          fetch-depth: 0
+
+      - name: Merge validated staging release into main ancestry
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin staging
+
+          set +e
+          git merge --no-commit --no-ff origin/staging
+          MERGE_STATUS=$?
+          set -e
+
+          if [[ "$MERGE_STATUS" -ne 0 && "$MERGE_STATUS" -ne 1 ]]; then
+            echo "Unexpected merge status: $MERGE_STATUS"
+            exit "$MERGE_STATUS"
+          fi
+
+          conflicts=(
+            "app/(auth)/login/actions.ts"
+            "app/(auth)/login/page.tsx"
+            "app/(auth)/signup/page.tsx"
+            "app/(auth)/signup/pending/page.tsx"
+            "app/(protected)/admin/users/actions.ts"
+            "app/(protected)/admin/users/page.tsx"
+            "app/(protected)/attendance/page.tsx"
+            "app/(protected)/care/actions.ts"
+            "app/(protected)/care/page.tsx"
+            "app/(protected)/dashboard/page.tsx"
+            "app/(protected)/import/actions.ts"
+            "app/(protected)/import/page.tsx"
+            "app/(protected)/members/actions.ts"
+            "app/(protected)/members/page.tsx"
+            "app/(protected)/visitors/actions.ts"
+            "app/(protected)/visitors/page.tsx"
+            "app/globals.css"
+            "components/AppShell.tsx"
+            "lib/auth.ts"
+            "lib/permissions.ts"
+            "lib/schemas.ts"
+            "lib/self-registration.ts"
+            "lib/supabase/proxy.ts"
+            "lib/supabase/rpc.ts"
+            "types/app.ts"
+          )
+
+          for file in "${conflicts[@]}"; do
+            git checkout --theirs -- "$file"
+            git add "$file"
+          done
+
+          # Keep the production branch policy that explicitly approves hotfix releases to main.
+          git checkout --ours -- .github/workflows/branch-policy.yml
+          git add .github/workflows/branch-policy.yml
+
+          # The branch-building workflow must not be part of the production release tree.
+          git rm -f .github/workflows/build-production-hotfix.yml
+          git add -A
+
+          unresolved=$(git diff --name-only --diff-filter=U)
+          if [[ -n "$unresolved" ]]; then
+            echo "Unresolved merge conflicts remain:"
+            echo "$unresolved"
+            exit 1
+          fi
+
+          TREE=$(git write-tree)
+          PARENT=$(git rev-parse HEAD)
+          COMMIT=$(printf '%s\n' "hotfix: prepare investor-ready Church Care Hub production release" | git commit-tree "$TREE" -p "$PARENT")
+          git reset --hard "$COMMIT"
+          git push origin HEAD:hotfix/church-care-hub-production
