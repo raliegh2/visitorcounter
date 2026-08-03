@@ -6,19 +6,26 @@ on:
       - chore/open-production-pr
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
   open-pr:
+    if: ${{ !contains(github.event.head_commit.message, 'record production PR result') }}
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: chore/open-production-pr
+          fetch-depth: 0
+
       - name: Open staging to main release PR
         shell: bash
         run: |
+          rm -rf .audit/open-production-pr
+          mkdir -p .audit/open-production-pr
           cat > /tmp/release-body.md <<'EOF'
           ## Production release
 
@@ -44,10 +51,23 @@ jobs:
           Production deployment will run through the repository's protected deployment workflow after merge.
           EOF
 
-          if gh pr list --base main --head staging --state open --json number --jq 'length' | grep -qx 0; then
-            gh pr create \
-              --base main \
-              --head staging \
-              --title "Release investor-ready Church Care Hub to production" \
-              --body-file /tmp/release-body.md
-          fi
+          set +e
+          gh pr create \
+            --repo "${GITHUB_REPOSITORY}" \
+            --base main \
+            --head staging \
+            --title "Release investor-ready Church Care Hub to production" \
+            --body-file /tmp/release-body.md \
+            > .audit/open-production-pr/stdout.txt \
+            2> .audit/open-production-pr/stderr.txt
+          STATUS=$?
+          set -e
+          printf 'status=%s\n' "$STATUS" > .audit/open-production-pr/status.txt
+
+      - name: Record result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .audit/open-production-pr
+          git commit -m "chore: record production PR result"
+          git push origin HEAD:chore/open-production-pr
