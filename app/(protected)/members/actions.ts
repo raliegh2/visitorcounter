@@ -16,22 +16,32 @@ export async function createMemberAction(formData: FormData) {
     email: stringField(formData, "email"),
     phone: stringField(formData, "phone"),
     address: stringField(formData, "address"),
-    membershipStatus: stringField(formData, "membershipStatus") || "active",
-    lastContactAt: stringField(formData, "lastContactAt")
+    ministry: stringField(formData, "ministry"),
+    joinedDate: stringField(formData, "joinedDate")
   });
-  if (!parsed.success) redirect(`/members?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Member details are invalid.")}`);
+
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Member details are invalid.";
+    redirect(`/members?error=${encodeURIComponent(message)}`);
+  }
+
   const supabase = await createClient();
-  const { error } = await callRpc<string>(supabase, "create_member_record", {
+  const { error } = await callRpc<string>(supabase, "create_member", {
     p_first_name: parsed.data.firstName,
     p_last_name: parsed.data.lastName,
     p_email: parsed.data.email || null,
     p_phone: parsed.data.phone || null,
     p_address: parsed.data.address || null,
-    p_membership_status: parsed.data.membershipStatus,
-    p_last_contact_at: parsed.data.lastContactAt || null
+    p_ministry: parsed.data.ministry || null,
+    p_joined_date: parsed.data.joinedDate || null
   });
-  if (error) redirect(`/members?error=${encodeURIComponent("The member record could not be created.")}`);
+
+  if (error) {
+    redirect("/members?error=The+member+record+could+not+be+created.");
+  }
+
   revalidatePath("/members");
   revalidatePath("/dashboard");
+  revalidatePath("/care");
   redirect("/members?notice=Member+record+created.");
 }

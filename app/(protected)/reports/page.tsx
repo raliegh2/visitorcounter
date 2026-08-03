@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { hasRecentReauth } from "@/lib/reauth";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 type Summary = {
   service_id: string;
@@ -50,9 +51,9 @@ export default async function ReportsPage({
             <form method="post" action="/api/exports/attendance">
               <input type="hidden" name="from" value={from} />
               <input type="hidden" name="to" value={to} />
-              <button className="button button-primary" type="submit">
+              <SubmitButton className="button button-primary" pendingLabel="Preparing export…">
                 Export authorized data
-              </button>
+              </SubmitButton>
             </form>
           ) : (
             <Link
@@ -81,7 +82,7 @@ export default async function ReportsPage({
             <label htmlFor="to">To</label>
             <input id="to" name="to" type="date" defaultValue={to} required />
           </div>
-          <button className="button button-primary" type="submit">Run report</button>
+          <SubmitButton className="button button-primary" pendingLabel="Running report…">Run report</SubmitButton>
         </form>
 
         <div className="table-wrap">

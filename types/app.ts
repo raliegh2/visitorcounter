@@ -1,12 +1,13 @@
 export type AppRole = "administrator" | "usher" | "pastor" | "auditor";
 export type RoleStatus = "pending" | "approved" | "rejected";
+export type PersonType = "visitor" | "member";
 
 export interface UserProfile {
   id: string;
   organization_id: string;
   display_name: string;
   role: AppRole;
-  requested_role: "administrator" | "usher" | "pastor";
+  requested_role: AppRole;
   role_status: RoleStatus;
   active: boolean;
   created_at: string;
@@ -41,69 +42,56 @@ export interface AttendanceRow {
   voided_at: string | null;
 }
 
-export interface MemberSearchResult {
+export interface MemberRow {
   id: string;
   first_name: string;
   last_name: string;
   email: string | null;
   phone: string | null;
   address: string | null;
-  membership_status: "active" | "inactive" | "prospective";
-  last_contact_at: string | null;
-  last_visited_at: string | null;
-  visit_count: number;
-  has_been_visited: boolean;
+  ministry: string | null;
+  joined_date: string | null;
+  active: boolean;
+  created_at: string;
 }
-
-export type CarePersonType = "visitor" | "member";
 
 export interface CarePerson {
-  person_type: CarePersonType;
-  id: string;
+  person_type: PersonType;
+  person_id: string;
   display_name: string;
-  secondary_text: string | null;
-  contact_text: string | null;
-  last_visited_at: string | null;
-  visit_count: number;
+  contact: string | null;
+  subtitle: string;
 }
 
-export interface CareNote {
+export interface CareNoteRow {
   id: string;
   note_text: string;
-  status: "open" | "in_progress" | "resolved";
-  visibility: "assigned_team" | "pastoral_team" | "admin_only";
+  note_type: "care" | "prayer" | "follow_up" | "visit";
+  status: "open" | "resolved";
+  visibility: "assigned_team" | "pastoral_team" | "administrator";
   created_at: string;
   created_by_name: string;
 }
 
-export interface MinistryVisit {
+export interface VisitRecordRow {
   id: string;
+  outcome: string;
   visited_at: string;
-  outcome: "planned" | "attempted" | "completed" | "follow_up_needed";
-  summary: string | null;
   visited_by_name: string;
 }
 
-export interface RoleRequest {
-  user_id: string;
+export interface PastorApplication {
+  profile_id: string;
   display_name: string;
-  email: string | null;
-  requested_role: "administrator" | "usher" | "pastor";
+  requested_role: AppRole;
   role_status: RoleStatus;
-  church_name: string | null;
-  pastor_name: string | null;
-  district: string | null;
-  denomination: string | null;
-  church_phone: string | null;
-  submitted_at: string | null;
-}
-
-export interface MinistryMetrics {
-  visitors: number;
-  members: number;
-  open_care_needs: number;
-  completed_visits: number;
-  pending_role_requests: number;
+  church_name: string;
+  pastor_name: string;
+  district: string;
+  denomination: string;
+  church_phone: string;
+  submitted_at: string;
+  verification_notes: string | null;
 }
 
 export interface ActionResult {

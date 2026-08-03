@@ -4,13 +4,42 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { publicEnv } from "@/lib/env";
 import { stringField } from "@/lib/form-data";
-import { signupSchema } from "@/lib/schemas";
+import { z } from "zod";
+
+const requestAccessSchema = z
+  .object({
+    displayName: z.string().trim().min(2).max(80),
+    email: z.email().max(254),
+    requestedRole: z.enum(["usher", "pastor"]),
+    churchName: z.string().trim().max(160),
+    pastorName: z.string().trim().max(120),
+    district: z.string().trim().max(120),
+    denomination: z.string().trim().max(120),
+    churchPhone: z.string().trim().max(40)
+  })
+  .superRefine((value, context) => {
+    if (value.requestedRole !== "pastor") return;
+
+    const requiredFields: Array<[keyof typeof value, string]> = [
+      ["churchName", "Church name is required for pastor verification."],
+      ["pastorName", "Pastor or supervisor name is required."],
+      ["district", "District or region is required."],
+      ["denomination", "Denomination is required."],
+      ["churchPhone", "Church phone is required."]
+    ];
+
+    for (const [field, message] of requiredFields) {
+      if (String(value[field]).trim().length < 2) {
+        context.addIssue({ code: "custom", path: [field], message });
+      }
+    }
+  });
 
 export async function requestStaffAccess(formData: FormData) {
-  const parsed = signupSchema.safeParse({
+  const parsed = requestAccessSchema.safeParse({
     displayName: stringField(formData, "displayName"),
     email: stringField(formData, "email"),
-    requestedRole: stringField(formData, "requestedRole") || "usher",
+    requestedRole: stringField(formData, "requestedRole"),
     churchName: stringField(formData, "churchName"),
     pastorName: stringField(formData, "pastorName"),
     district: stringField(formData, "district"),
@@ -19,7 +48,8 @@ export async function requestStaffAccess(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(`/signup?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Enter valid account details.")}`);
+    const message = parsed.error.issues[0]?.message ?? "Enter valid account details.";
+    redirect(`/signup?error=${encodeURIComponent(message)}`);
   }
 
   const supabase = await createClient();
@@ -42,12 +72,18 @@ export async function requestStaffAccess(formData: FormData) {
   });
 
   if (error) {
-    console.error("Self-registration request failed", { code: error.code ?? "unknown", status: error.status ?? 0 });
-    redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${encodeURIComponent(error.code ?? "auth_error")}`);
+    console.error("Self-registration request failed", {
+      code: error.code ?? "unknown",
+      status: error.status ?? 0,
+      message: error.message
+    });
+
+    const safeCode = encodeURIComponent(error.code ?? "auth_error");
+    redirect(`/signup?error=Signup+could+not+be+completed.+Reference%3A+${safeCode}`);
   }
 
-  const message = parsed.data.requestedRole === "usher"
-    ? "Check your email for the secure sign-in link. Usher access is available after email confirmation."
-    : `Check your email for the secure link. A church administrator must approve your ${parsed.data.requestedRole} request.`;
-  redirect(`/login?notice=${encodeURIComponent(message)}`);
+  const notice = parsed.data.requestedRole === "pastor"
+    ? "Check your email for the secure sign-in link. Your pastor request will be reviewed after email confirmation."
+    : "Check your email for the secure sign-in link. After confirmation, you can enter the usher workspace.";
+  redirect(`/login?notice=${encodeURIComponent(notice)}`);
 }
