@@ -1,0 +1,54 @@
+name: Inspect staging rules
+
+on:
+  push:
+    branches:
+      - chore/inspect-staging-rules
+
+permissions:
+  contents: write
+  pull-requests: read
+  checks: read
+  statuses: read
+
+jobs:
+  inspect:
+    if: ${{ !contains(github.event.head_commit.message, 'record staging rule inspection') }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chore/inspect-staging-rules
+          fetch-depth: 0
+
+      - name: Inspect active rules and check rollup
+        shell: bash
+        run: |
+          rm -rf .audit/staging-rules
+          mkdir -p .audit/staging-rules
+
+          gh api "repos/${GITHUB_REPOSITORY}/rules/branches/staging" \
+            > .audit/staging-rules/active-rules.json \
+            2> .audit/staging-rules/active-rules-error.txt || true
+
+          gh api "repos/${GITHUB_REPOSITORY}/branches/staging/protection" \
+            > .audit/staging-rules/classic-protection.json \
+            2> .audit/staging-rules/classic-protection-error.txt || true
+
+          gh api graphql \
+            -f owner="${GITHUB_REPOSITORY_OWNER}" \
+            -f name="${GITHUB_REPOSITORY#*/}" \
+            -F number=57 \
+            -f query='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){mergeable mergeStateStatus reviewDecision isDraft commits(last:1){nodes{commit{oid statusCheckRollup{state contexts(first:100){nodes{__typename ... on CheckRun{name status conclusion detailsUrl checkSuite{workflowRun{workflow{name}}}} ... on StatusContext{context state targetUrl}}}}}}}} branchProtectionRules(first:100){nodes{pattern requiresStatusChecks requiredStatusCheckContexts requiresApprovingReviews requiredApprovingReviewCount}}}}' \
+            > .audit/staging-rules/pr-check-rollup.json \
+            2> .audit/staging-rules/pr-check-rollup-error.txt || true
+
+      - name: Record inspection
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .audit/staging-rules
+          git commit -m "chore: record staging rule inspection"
+          git push origin HEAD:chore/inspect-staging-rules
