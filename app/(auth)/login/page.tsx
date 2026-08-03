@@ -13,26 +13,19 @@ export default async function LoginPage({
   const params = await searchParams;
 
   return (
-    <main className="login-shell">
-      <section className="login-hero">
-        <div className="eyebrow" style={{ color: "#bfdbfe" }}>Private staff workspace</div>
-        <h1>Welcome visitors with care and confidence.</h1>
-        <p>
-          Register first-time visitors, check in returning visitors, and manage service attendance
-          through a role-restricted system designed around minimum data collection.
-        </p>
-        <div className="login-points">
-          <div className="login-point"><span>✓</span><strong>Individual staff accounts</strong></div>
-          <div className="login-point"><span>✓</span><strong>Server and database authorization</strong></div>
-          <div className="login-point"><span>✓</span><strong>Auditable attendance corrections</strong></div>
-        </div>
-      </section>
+    <main className="auth-layout">
+      <section className="auth-panel">
+        <div className="auth-card">
+          <div className="brand auth-brand">
+            <div className="brand-mark" aria-hidden="true">✦</div>
+            <div>
+              <strong>Church Care Hub</strong>
+              <span>Visitor, member and ministry care</span>
+            </div>
+          </div>
 
-      <section className="login-panel">
-        <div className="login-card">
-          <div className="eyebrow">Staff access</div>
-          <h2>Sign in</h2>
-          <p className="muted">Use your assigned password, or request a secure email link below.</p>
+          <h1>Welcome back.</h1>
+          <p className="muted">Sign in to your secure, role-based ministry workspace.</p>
           <Notice message={params.error} kind="error" />
           <Notice message={params.notice} kind="success" />
 
@@ -53,10 +46,23 @@ export default async function LoginPage({
             </div>
           </form>
 
-          <hr className="divider" />
-          <div className="actions" style={{ justifyContent: "space-between" }}>
+          <div className="auth-links">
             <Link href="/forgot-password">Forgot your password?</Link>
-            <Link href="/signup">Create account or email sign-in</Link>
+            <Link href="/signup">Create ministry account</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-visual">
+        <div>
+          <h2>Welcome every person.<br />Track every follow-up.<br />Support every need.</h2>
+          <p>
+            Register visitors, manage attendance, care for members and keep ministry next steps visible.
+          </p>
+          <div className="auth-proof">
+            <span>Individual staff accounts</span>
+            <span>Database-enforced permissions</span>
+            <span>Auditable care and attendance actions</span>
           </div>
         </div>
       </section>

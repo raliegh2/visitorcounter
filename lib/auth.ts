@@ -11,17 +11,22 @@ export const getCurrentProfile = cache(async (): Promise<UserProfile | null> => 
 
   const { data, error } = await supabase
     .from("user_profiles")
-    .select("id, organization_id, display_name, role, active, created_at, updated_at")
+    .select("id, organization_id, display_name, role, requested_role, role_status, active, created_at, updated_at")
     .eq("id", user.id)
     .single();
+  const profile = data as unknown as UserProfile | null;
 
-  if (error || !data || !data.active) return null;
-  return data as UserProfile;
+  if (error || !profile || !profile.active) return null;
+  return profile;
 });
 
 export async function requireProfile(allowedRoles?: readonly AppRole[]): Promise<UserProfile> {
   const profile = await getCurrentProfile();
   if (!profile) redirect("/login");
+
+  if (profile.role_status !== "approved") {
+    redirect("/signup/pending");
+  }
 
   if (allowedRoles && !allowedRoles.includes(profile.role)) {
     redirect("/unauthorized");

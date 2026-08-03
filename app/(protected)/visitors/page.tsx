@@ -16,7 +16,7 @@ export default async function VisitorsPage({
 }: {
   searchParams: Promise<{ service?: string; q?: string; notice?: string; error?: string }>;
 }) {
-  await requireProfile(["administrator", "usher"]);
+  await requireProfile(["administrator", "usher", "pastor"]);
   const params = await searchParams;
   const services = await getAvailableServices();
   const service = chooseService(services, params.service);
@@ -37,14 +37,10 @@ export default async function VisitorsPage({
       <header className="page-header">
         <div>
           <h1>Visitor check-in</h1>
-          <p>
-            Search active visitor records first. Existing records are checked in as returning visitors;
-            new records are logged as first-time visitors.
-          </p>
+          <p>Search active visitor records first. Existing records count as returning visitors and new records count as first-time visitors.</p>
         </div>
         {service ? <ServicePicker services={services} selectedId={service.id} action="/visitors" /> : null}
       </header>
-
       <Notice message={params.notice} kind="success" />
       <Notice message={params.error} kind="error" />
 
@@ -54,53 +50,29 @@ export default async function VisitorsPage({
         <div className="grid grid-2">
           <section className="card">
             <div className="page-header" style={{ marginBottom: 12 }}>
-              <div>
-                <h2>Find a returning visitor</h2>
-                <p className="muted small">Only active, non-anonymized visitor records are searchable.</p>
-              </div>
+              <div><h2>Find a returning visitor</h2><p className="muted small">Only active visitor records are searchable.</p></div>
               <span className="badge badge-neutral">Returning visitor</span>
             </div>
             <form method="get" action="/visitors" className="toolbar">
               <input type="hidden" name="service" value={service.id} />
-              <div className="field grow">
-                <label htmlFor="q">Name or preferred name</label>
-                <input id="q" name="q" defaultValue={query} minLength={1} maxLength={100} required />
-              </div>
-              <button className="button button-primary" type="submit">Search</button>
+              <div className="field grow"><label htmlFor="q">Name or preferred name</label><input id="q" name="q" defaultValue={query} minLength={1} maxLength={100} required /></div>
+              <SubmitButton className="button button-primary" pendingLabel="Searching…">Search</SubmitButton>
             </form>
-
-            {query && visitors.length === 0 ? (
-              <div className="empty">No matching active visitor records were found.</div>
-            ) : null}
-
+            {query && visitors.length === 0 ? <div className="empty">No matching active visitor records were found.</div> : null}
             <div className="stack">
               {visitors.map((visitor) => (
                 <article className="card" key={visitor.id}>
                   <div className="page-header" style={{ marginBottom: 0 }}>
                     <div>
-                      <div className="actions" style={{ marginBottom: 6 }}>
-                        <h3 style={{ margin: 0 }}>{visitor.full_name}</h3>
-                        <span className="badge badge-neutral">Returning visitor</span>
-                        <span className="badge badge-success">Active</span>
-                      </div>
-                      <p className="muted small">
-                        {visitor.preferred_name ? `Preferred: ${visitor.preferred_name} · ` : ""}
-                        First visit: {visitor.first_visit_date}
-                        {visitor.last_seen_date ? ` · Last seen: ${visitor.last_seen_date}` : ""}
-                      </p>
+                      <div className="actions" style={{ marginBottom: 6 }}><h3 style={{ margin: 0 }}>{visitor.full_name}</h3><span className="badge badge-neutral">Returning visitor</span><span className="badge badge-success">Active</span></div>
+                      <p className="muted small">{visitor.preferred_name ? `Preferred: ${visitor.preferred_name} · ` : ""}First visit: {visitor.first_visit_date}{visitor.last_seen_date ? ` · Last seen: ${visitor.last_seen_date}` : ""}</p>
                     </div>
                     {visitor.already_checked_in ? (
                       <span className="badge badge-success">Already counted</span>
                     ) : (
                       <form action={checkInVisitorAction}>
-                        <input type="hidden" name="visitorId" value={visitor.id} />
-                        <input type="hidden" name="serviceId" value={service.id} />
-                        <SubmitButton
-                          className="button button-primary button-small"
-                          pendingLabel="Checking in…"
-                        >
-                          Check in and count
-                        </SubmitButton>
+                        <input type="hidden" name="visitorId" value={visitor.id} /><input type="hidden" name="serviceId" value={service.id} />
+                        <SubmitButton className="button button-primary button-small" pendingLabel="Checking in…">Check in and count</SubmitButton>
                       </form>
                     )}
                   </div>
@@ -111,46 +83,20 @@ export default async function VisitorsPage({
 
           <section className="card">
             <div className="page-header" style={{ marginBottom: 12 }}>
-              <div>
-                <h2>Register first-time visitor</h2>
-                <p className="muted small">
-                  Registration creates an active visitor record and immediately counts the person for this service.
-                </p>
-              </div>
+              <div><h2>Register first-time visitor</h2><p className="muted small">Registration creates an active visitor record and counts the person for this service.</p></div>
               <span className="badge badge-success">First-time visitor</span>
             </div>
             <form action={registerVisitorAction}>
               <input type="hidden" name="serviceId" value={service.id} />
               <div className="form-grid">
                 <DuplicateNameField serviceId={service.id} />
-                <div className="field">
-                  <label htmlFor="preferredName">Preferred name</label>
-                  <input id="preferredName" name="preferredName" maxLength={60} autoComplete="off" />
-                </div>
-                <div className="field">
-                  <label htmlFor="firstVisitDate">First visit date</label>
-                  <input id="firstVisitDate" name="firstVisitDate" type="date" defaultValue={service.service_date} required />
-                </div>
-                <div className="field">
-                  <label htmlFor="optionalContact">Optional phone or email</label>
-                  <input id="optionalContact" name="optionalContact" maxLength={120} autoComplete="off" />
-                </div>
+                <div className="field"><label htmlFor="preferredName">Preferred name</label><input id="preferredName" name="preferredName" maxLength={60} autoComplete="off" /></div>
+                <div className="field"><label htmlFor="firstVisitDate">First visit date</label><input id="firstVisitDate" name="firstVisitDate" type="date" defaultValue={service.service_date} required /></div>
+                <div className="field"><label htmlFor="optionalContact">Optional phone or email</label><input id="optionalContact" name="optionalContact" maxLength={120} autoComplete="off" /></div>
               </div>
-              <label className="checkbox-row">
-                <input name="contactConsent" type="checkbox" />
-                <span>
-                  <strong>Visitor consented to contact storage</strong>
-                  <br />
-                  <small className="muted">Required only when optional contact information is entered.</small>
-                </span>
-              </label>
-              <div className="notice notice-info">
-                Never enter prayer requests, counseling notes, health information, financial data,
-                addresses, identification numbers, or information about minors.
-              </div>
-              <SubmitButton className="button button-primary button-full" pendingLabel="Registering…">
-                Register, activate and count
-              </SubmitButton>
+              <label className="checkbox-row"><input name="contactConsent" type="checkbox" /><span><strong>Visitor consented to contact storage</strong><br /><small className="muted">Required when optional contact information is entered.</small></span></label>
+              <div className="notice notice-info">Collect only information needed for visitor welcome and follow-up.</div>
+              <SubmitButton className="button button-primary button-full" pendingLabel="Registering…">Register, activate and count</SubmitButton>
             </form>
           </section>
         </div>

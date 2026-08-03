@@ -12,6 +12,9 @@ const optionalContact = z
     "Enter a valid email address or phone number."
   );
 
+const optionalEmail = z.union([z.literal(""), z.email().max(254)]);
+const optionalDate = z.union([z.literal(""), z.iso.date()]);
+
 export const loginSchema = z.object({
   email: z.email().max(254),
   // Sign-in must accept existing passwords even if an older account used a shorter password.
@@ -73,7 +76,7 @@ export const correctionSchema = z.object({
 
 export const userRoleSchema = z.object({
   userId: z.uuid(),
-  role: z.enum(["administrator", "usher", "auditor"])
+  role: z.enum(["administrator", "usher", "pastor", "auditor"])
 });
 
 export const userActiveSchema = z.object({
@@ -84,8 +87,50 @@ export const userActiveSchema = z.object({
 export const inviteUserSchema = z.object({
   email: z.email().max(254),
   displayName: z.string().trim().min(2).max(80),
-  role: z.enum(["administrator", "usher", "auditor"])
+  role: z.enum(["administrator", "usher", "pastor", "auditor"])
 });
+
+export const memberSchema = z.object({
+  firstName: z.string().trim().min(1).max(80),
+  lastName: z.string().trim().min(1).max(80),
+  email: optionalEmail,
+  phone: z.string().trim().max(40),
+  address: z.string().trim().max(240),
+  ministry: z.string().trim().max(120),
+  joinedDate: optionalDate
+});
+
+export const careNoteSchema = z.object({
+  personType: z.enum(["visitor", "member"]),
+  personId: z.uuid(),
+  noteText: z.string().trim().min(2).max(2000),
+  noteType: z.enum(["care", "prayer", "follow_up", "visit"]),
+  visibility: z.enum(["assigned_team", "pastoral_team", "administrator"])
+});
+
+export const visitRecordSchema = z.object({
+  personType: z.enum(["visitor", "member"]),
+  personId: z.uuid(),
+  outcome: z.string().trim().min(2).max(120)
+});
+
+export const pastorReviewSchema = z.object({
+  userId: z.uuid(),
+  decision: z.enum(["approve", "reject"]),
+  notes: z.string().trim().max(500)
+});
+
+export const importedMemberSchema = z.object({
+  first_name: z.string().trim().min(1).max(80),
+  last_name: z.string().trim().min(1).max(80),
+  email: optionalEmail.default(""),
+  phone: z.string().trim().max(40).default(""),
+  address: z.string().trim().max(240).default(""),
+  ministry: z.string().trim().max(120).default(""),
+  joined_date: optionalDate.default("")
+});
+
+export const memberImportSchema = z.array(importedMemberSchema).min(1).max(500);
 
 export const retentionSettingsSchema = z.object({
   visitorRetentionMonths: z.coerce.number().int().min(1).max(120),

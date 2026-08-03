@@ -13,7 +13,7 @@ function destination(serviceId: string, notice: string, error = false): string {
 }
 
 export async function registerVisitorAction(formData: FormData) {
-  await requireProfile(["administrator", "usher"]);
+  await requireProfile(["administrator", "usher", "pastor"]);
   const parsed = visitorRegistrationSchema.safeParse({
     fullName: stringField(formData, "fullName"),
     preferredName: stringField(formData, "preferredName"),
@@ -45,11 +45,12 @@ export async function registerVisitorAction(formData: FormData) {
   revalidatePath("/visitors");
   revalidatePath("/attendance");
   revalidatePath("/dashboard");
+  revalidatePath("/care");
   redirect(destination(parsed.data.serviceId, "Visitor registered and checked in."));
 }
 
 export async function checkInVisitorAction(formData: FormData) {
-  await requireProfile(["administrator", "usher"]);
+  await requireProfile(["administrator", "usher", "pastor"]);
   const parsed = checkInSchema.safeParse({
     visitorId: stringField(formData, "visitorId"),
     serviceId: stringField(formData, "serviceId")
