@@ -16,7 +16,7 @@ export default async function VisitorsPage({
 }: {
   searchParams: Promise<{ service?: string; q?: string; notice?: string; error?: string }>;
 }) {
-  await requireProfile(["administrator", "usher"]);
+  await requireProfile(["administrator", "usher", "pastor"]);
   const params = await searchParams;
   const services = await getAvailableServices();
   const service = chooseService(services, params.service);
@@ -66,7 +66,9 @@ export default async function VisitorsPage({
                 <label htmlFor="q">Name or preferred name</label>
                 <input id="q" name="q" defaultValue={query} minLength={1} maxLength={100} required />
               </div>
-              <button className="button button-primary" type="submit">Search</button>
+              <SubmitButton className="button button-primary" pendingLabel="Searching…">
+                Search
+              </SubmitButton>
             </form>
 
             {query && visitors.length === 0 ? (

@@ -22,14 +22,9 @@ jobs:
             exit 1
           fi
 
-          if [[ "$BASE" == "staging" ]]; then
-            case "$HEAD" in
-              dev|hotfix/*) ;;
-              *)
-                echo "Staging pull requests must come from dev or an approved hotfix branch."
-                exit 1
-                ;;
-            esac
+          if [[ "$BASE" == "staging" && "$HEAD" != "dev" ]]; then
+            echo "Staging pull requests must come from dev."
+            exit 1
           fi
 
           if [[ "$BASE" == "dev" ]]; then

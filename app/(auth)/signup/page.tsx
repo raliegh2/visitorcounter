@@ -3,7 +3,7 @@ import { Notice } from "@/components/ui/Notice";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { requestStaffAccess } from "@/lib/self-registration";
 
-export const metadata = { title: "Usher access" };
+export const metadata = { title: "Ministry access" };
 
 export default async function SignupPage({
   searchParams
@@ -13,47 +13,103 @@ export default async function SignupPage({
   const params = await searchParams;
 
   return (
-    <main className="login-shell">
-      <section className="login-hero">
-        <div className="eyebrow" style={{ color: "#bfdbfe" }}>Usher access</div>
-        <h1>Create an account or request a secure sign-in link.</h1>
-        <p>
-          Submit your name and email address, then use the secure link sent by Supabase.
-          After confirming the email, users receive usher access automatically.
-        </p>
-        <div className="login-points">
-          <div className="login-point"><span>1</span><strong>Request your secure email link</strong></div>
-          <div className="login-point"><span>2</span><strong>Confirm the account through email</strong></div>
-          <div className="login-point"><span>3</span><strong>Open the dashboard as an usher</strong></div>
-        </div>
-      </section>
+    <main className="auth-layout">
+      <section className="auth-panel">
+        <div className="auth-card auth-card-wide">
+          <div className="brand auth-brand">
+            <div className="brand-mark" aria-hidden="true">✦</div>
+            <div>
+              <strong>Church Care Hub</strong>
+              <span>Visitor, member and ministry care</span>
+            </div>
+          </div>
 
-      <section className="login-panel">
-        <div className="login-card">
-          <div className="eyebrow">Secure email access</div>
-          <h2>Create account or sign in</h2>
-          <p className="muted">Use your own email address. Shared accounts are not permitted.</p>
+          <h1>Join your church care team.</h1>
+          <p className="muted">
+            Request the ministry workspace that matches your responsibilities. Every person uses an individual account.
+          </p>
           <Notice message={params.error} kind="error" />
 
           <form action={requestStaffAccess}>
-            <div className="field">
-              <label htmlFor="displayName">Full name</label>
-              <input id="displayName" name="displayName" autoComplete="name" minLength={2} maxLength={80} required />
+            <div className="form-grid">
+              <div className="field">
+                <label htmlFor="displayName">Full name</label>
+                <input id="displayName" name="displayName" autoComplete="name" minLength={2} maxLength={80} required />
+              </div>
+              <div className="field">
+                <label htmlFor="email">Email address</label>
+                <input id="email" name="email" type="email" autoComplete="email" maxLength={254} required />
+              </div>
             </div>
-            <div className="field">
-              <label htmlFor="email">Email address</label>
-              <input id="email" name="email" type="email" autoComplete="email" maxLength={254} required />
+
+            <fieldset className="role-fieldset">
+              <legend>Choose your ministry role</legend>
+              <div className="role-grid">
+                <label className="role-option">
+                  <input type="radio" name="requestedRole" value="usher" defaultChecked />
+                  <span className="role-option-copy">
+                    <strong>Usher</strong>
+                    <small>Visitor registration, service check-in, attendance and assigned-team follow-up.</small>
+                  </span>
+                </label>
+                <label className="role-option">
+                  <input type="radio" name="requestedRole" value="pastor" />
+                  <span className="role-option-copy">
+                    <strong>Pastor</strong>
+                    <small>Usher capabilities plus member records, pastoral care, visits and member imports.</small>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <details className="verification-panel">
+              <summary>Pastor verification details</summary>
+              <p className="muted small">
+                Complete every field below when requesting pastor access. An administrator reviews the request before access is approved.
+              </p>
+              <div className="form-grid">
+                <div className="field">
+                  <label htmlFor="churchName">Church name</label>
+                  <input id="churchName" name="churchName" maxLength={160} />
+                </div>
+                <div className="field">
+                  <label htmlFor="pastorName">Senior pastor or supervisor</label>
+                  <input id="pastorName" name="pastorName" maxLength={120} />
+                </div>
+                <div className="field">
+                  <label htmlFor="district">District or region</label>
+                  <input id="district" name="district" maxLength={120} />
+                </div>
+                <div className="field">
+                  <label htmlFor="denomination">Denomination</label>
+                  <input id="denomination" name="denomination" maxLength={120} />
+                </div>
+                <div className="field">
+                  <label htmlFor="churchPhone">Church phone</label>
+                  <input id="churchPhone" name="churchPhone" type="tel" maxLength={40} />
+                </div>
+              </div>
+            </details>
+
+            <div className="notice notice-info">
+              Usher accounts are approved after email confirmation. Pastor accounts remain pending until an administrator verifies the ministry details.
             </div>
-            <div className="field">
-              <SubmitButton className="button button-primary button-full" pendingLabel="Sending secure link…">
-                Send secure email link
-              </SubmitButton>
-            </div>
+            <SubmitButton className="button button-primary button-full" pendingLabel="Sending secure link…">
+              Send secure email link
+            </SubmitButton>
           </form>
 
-          <hr className="divider" />
-          <p className="muted">Prefer password sign-in?</p>
-          <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
+          <div className="auth-links">
+            <span className="muted">Already registered?</span>
+            <Link href="/login">Return to sign in</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-visual">
+        <div>
+          <h2>Welcome every person.<br />Track every follow-up.<br />Support every need.</h2>
+          <p>Secure ministry care for ushers, pastors and administrators.</p>
         </div>
       </section>
     </main>

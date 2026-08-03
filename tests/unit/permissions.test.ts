@@ -12,6 +12,13 @@ describe("role permissions", () => {
     expect(hasPermission("usher", "user:manage")).toBe(false);
   });
 
+  it("gives pastors visitor-team access without administrator powers", () => {
+    expect(hasPermission("pastor", "visitor:create")).toBe(true);
+    expect(hasPermission("pastor", "attendance:create")).toBe(true);
+    expect(hasPermission("pastor", "user:manage")).toBe(false);
+    expect(hasPermission("pastor", "retention:manage")).toBe(false);
+  });
+
   it("keeps auditors read-only", () => {
     expect(hasPermission("auditor", "report:view")).toBe(true);
     expect(hasPermission("auditor", "visitor:create")).toBe(false);

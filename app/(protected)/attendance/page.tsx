@@ -22,7 +22,7 @@ export default async function AttendancePage({
 }: {
   searchParams: Promise<{ service?: string; notice?: string; error?: string }>;
 }) {
-  const profile = await requireProfile(["administrator", "usher"]);
+  const profile = await requireProfile(["administrator", "usher", "pastor"]);
   const params = await searchParams;
   const services = await getAvailableServices();
   const service = chooseService(services, params.service);
