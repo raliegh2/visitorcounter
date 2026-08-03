@@ -57,19 +57,31 @@ export default async function AttendancePage({
 
       <section className="grid grid-4" style={{ marginBottom: 18 }}>
         <div className="card metric">
-          <div><div className="metric-label">Total individuals present</div><div className="metric-value">{metrics.attending}</div></div>
+          <div>
+            <div className="metric-label">Total individuals present</div>
+            <div className="metric-value">{metrics.attending}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">✓</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">First-time visitors</div><div className="metric-value">{metrics.first_time}</div></div>
+          <div>
+            <div className="metric-label">First-time visitors</div>
+            <div className="metric-value">{metrics.first_time}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">★</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">Returning visitors</div><div className="metric-value">{metrics.returning}</div></div>
+          <div>
+            <div className="metric-label">Returning visitors</div>
+            <div className="metric-value">{metrics.returning}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">↻</div>
         </div>
         <div className="card metric">
-          <div><div className="metric-label">Active visitor records</div><div className="metric-value">{metrics.visitor_records}</div></div>
+          <div>
+            <div className="metric-label">Active visitor records</div>
+            <div className="metric-value">{metrics.visitor_records}</div>
+          </div>
           <div className="metric-icon" aria-hidden="true">◎</div>
         </div>
       </section>
@@ -84,7 +96,10 @@ export default async function AttendancePage({
             <table>
               <thead>
                 <tr>
-                  <th>Person</th><th>Visitor status</th><th>Checked in</th><th>Recorded by</th>
+                  <th>Person</th>
+                  <th>Visitor status</th>
+                  <th>Checked in</th>
+                  <th>Recorded by</th>
                   {profile.role === "administrator" ? <th>Correction</th> : null}
                 </tr>
               </thead>
@@ -93,8 +108,16 @@ export default async function AttendancePage({
                   const firstTime = row.visitor_type === "first-time";
                   return (
                     <tr key={row.attendance_id}>
-                      <td><strong>{row.display_name}</strong><br /><small className="muted">Active visitor record {row.visitor_id.slice(0, 8)}</small></td>
-                      <td><span className={`badge ${firstTime ? "badge-success" : "badge-neutral"}`}>{firstTime ? "First-time visitor" : "Returning visitor"}</span></td>
+                      <td>
+                        <strong>{row.display_name}</strong>
+                        <br />
+                        <small className="muted">Active visitor record {row.visitor_id.slice(0, 8)}</small>
+                      </td>
+                      <td>
+                        <span className={`badge ${firstTime ? "badge-success" : "badge-neutral"}`}>
+                          {firstTime ? "First-time visitor" : "Returning visitor"}
+                        </span>
+                      </td>
                       <td>{new Date(row.checked_in_at).toLocaleString()}</td>
                       <td>{row.checked_in_by_name}</td>
                       {profile.role === "administrator" ? (
