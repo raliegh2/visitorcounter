@@ -1,0 +1,3 @@
+app/(protected)/attendance/page.tsx
+app/(protected)/dashboard/page.tsx
+app/(protected)/visitors/page.tsx

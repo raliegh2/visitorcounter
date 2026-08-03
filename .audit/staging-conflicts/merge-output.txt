@@ -1,0 +1,10 @@
+Auto-merging app/(auth)/login/page.tsx
+Auto-merging app/(protected)/attendance/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/attendance/page.tsx
+Auto-merging app/(protected)/dashboard/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/dashboard/page.tsx
+Auto-merging app/(protected)/visitors/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/visitors/page.tsx
+Auto-merging lib/auth.ts
+Auto-merging lib/schemas.ts
+Automatic merge failed; fix conflicts and then commit the result.
