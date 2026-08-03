@@ -29,26 +29,31 @@
     "deploy:vercel": "node scripts/deploy-vercel.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "0.12.0",
-    "@supabase/supabase-js": "2.108.2",
-    "next": "16.2.9",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "@supabase/ssr": "0.12.4",
+    "@supabase/supabase-js": "2.111.0",
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@next/eslint-plugin-next": "16.2.12",
     "@playwright/test": "1.61.0",
     "@types/node": "22.15.32",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
-    "eslint": "9.29.0",
-    "eslint-config-next": "16.2.9",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "eslint": "10.8.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.7.0",
     "supabase": "2.107.0",
     "typescript": "5.9.2",
+    "typescript-eslint": "8.65.0",
     "vitest": "3.2.6"
   },
   "overrides": {
-    "postcss": "8.5.10",
+    "postcss": "8.5.23",
+    "sharp": "0.35.3",
     "esbuild": "0.28.1"
   }
 }

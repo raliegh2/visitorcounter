@@ -22,7 +22,7 @@ export default async function ReauthPage({
         <div className="eyebrow">Sensitive administrator action</div>
         <h1>Confirm your identity</h1>
         <p className="muted">
-          Re-enter your password and complete multi-factor authentication. Authorization remains
+          Re-enter your password to authorize sensitive administrator actions. Authorization remains
           valid for five minutes.
         </p>
         <Notice message={params.error} kind="error" />
