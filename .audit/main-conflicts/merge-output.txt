@@ -1,0 +1,52 @@
+Auto-merging .github/workflows/branch-policy.yml
+Auto-merging app/(auth)/login/actions.ts
+CONFLICT (content): Merge conflict in app/(auth)/login/actions.ts
+Auto-merging app/(auth)/login/page.tsx
+CONFLICT (content): Merge conflict in app/(auth)/login/page.tsx
+Auto-merging app/(auth)/signup/page.tsx
+CONFLICT (content): Merge conflict in app/(auth)/signup/page.tsx
+Auto-merging app/(auth)/signup/pending/page.tsx
+CONFLICT (content): Merge conflict in app/(auth)/signup/pending/page.tsx
+Auto-merging app/(protected)/admin/users/actions.ts
+CONFLICT (content): Merge conflict in app/(protected)/admin/users/actions.ts
+Auto-merging app/(protected)/admin/users/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/admin/users/page.tsx
+Auto-merging app/(protected)/attendance/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/attendance/page.tsx
+Auto-merging app/(protected)/care/actions.ts
+CONFLICT (add/add): Merge conflict in app/(protected)/care/actions.ts
+Auto-merging app/(protected)/care/page.tsx
+CONFLICT (add/add): Merge conflict in app/(protected)/care/page.tsx
+Auto-merging app/(protected)/dashboard/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/dashboard/page.tsx
+Auto-merging app/(protected)/import/actions.ts
+CONFLICT (add/add): Merge conflict in app/(protected)/import/actions.ts
+Auto-merging app/(protected)/import/page.tsx
+CONFLICT (add/add): Merge conflict in app/(protected)/import/page.tsx
+Auto-merging app/(protected)/members/actions.ts
+CONFLICT (add/add): Merge conflict in app/(protected)/members/actions.ts
+Auto-merging app/(protected)/members/page.tsx
+CONFLICT (add/add): Merge conflict in app/(protected)/members/page.tsx
+Auto-merging app/(protected)/visitors/actions.ts
+CONFLICT (content): Merge conflict in app/(protected)/visitors/actions.ts
+Auto-merging app/(protected)/visitors/page.tsx
+CONFLICT (content): Merge conflict in app/(protected)/visitors/page.tsx
+Auto-merging app/globals.css
+CONFLICT (content): Merge conflict in app/globals.css
+Auto-merging components/AppShell.tsx
+CONFLICT (content): Merge conflict in components/AppShell.tsx
+Auto-merging lib/auth.ts
+CONFLICT (content): Merge conflict in lib/auth.ts
+Auto-merging lib/permissions.ts
+CONFLICT (content): Merge conflict in lib/permissions.ts
+Auto-merging lib/schemas.ts
+CONFLICT (content): Merge conflict in lib/schemas.ts
+Auto-merging lib/self-registration.ts
+CONFLICT (content): Merge conflict in lib/self-registration.ts
+Auto-merging lib/supabase/proxy.ts
+CONFLICT (content): Merge conflict in lib/supabase/proxy.ts
+Auto-merging lib/supabase/rpc.ts
+CONFLICT (add/add): Merge conflict in lib/supabase/rpc.ts
+Auto-merging types/app.ts
+CONFLICT (content): Merge conflict in types/app.ts
+Automatic merge failed; fix conflicts and then commit the result.
