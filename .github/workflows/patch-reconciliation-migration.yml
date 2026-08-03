@@ -1,0 +1,36 @@
+name: Patch reconciliation migration
+
+on:
+  push:
+    branches:
+      - hotfix/church-care-hub-production
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hotfix/church-care-hub-production
+          fetch-depth: 0
+      - name: Remove legacy-only column dependency
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('supabase/migrations/20260803040000_reconcile_care_hub_release.sql')
+          text = path.read_text()
+          old = 'coalesce(resolved_at, updated_at, created_at)'
+          new = 'coalesce(resolved_at, created_at)'
+          if old not in text:
+              raise SystemExit('expected migration text not found')
+          path.write_text(text.replace(old, new))
+          PY
+          rm -f .github/workflows/patch-reconciliation-migration.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: keep reconciliation migration fresh-install safe"
+          git push origin HEAD:hotfix/church-care-hub-production
