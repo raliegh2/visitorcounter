@@ -72,13 +72,16 @@ export async function inviteUserAction(formData: FormData) {
 }
 
 export async function changeUserRoleAction(formData: FormData) {
-  await requireRecentReauth("/admin/users");
+  const current = await requireRecentReauth("/admin/users");
   const parsed = userRoleSchema.safeParse({
     userId: stringField(formData, "userId"),
     role: stringField(formData, "role")
   });
 
   if (!parsed.success) redirect("/admin/users?error=The+role+change+is+invalid.");
+  if (parsed.data.userId === current.id) {
+    redirect("/admin/users?error=Use+another+administrator+account+to+change+your+own+role.");
+  }
 
   const supabase = await createClient();
   const { error } = await callRpc<null>(supabase, "set_user_role", {
@@ -93,13 +96,16 @@ export async function changeUserRoleAction(formData: FormData) {
 }
 
 export async function changeUserActiveAction(formData: FormData) {
-  await requireRecentReauth("/admin/users");
+  const current = await requireRecentReauth("/admin/users");
   const parsed = userActiveSchema.safeParse({
     userId: stringField(formData, "userId"),
     active: checkbox(formData, "active")
   });
 
   if (!parsed.success) redirect("/admin/users?error=The+account+status+request+is+invalid.");
+  if (parsed.data.userId === current.id) {
+    redirect("/admin/users?error=You+cannot+disable+your+own+administrator+account.");
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_user_active", {

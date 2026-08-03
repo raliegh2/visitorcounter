@@ -56,7 +56,7 @@ export default async function VisitorsPage({
             <form method="get" action="/visitors" className="toolbar">
               <input type="hidden" name="service" value={service.id} />
               <div className="field grow"><label htmlFor="q">Name or preferred name</label><input id="q" name="q" defaultValue={query} minLength={1} maxLength={100} required /></div>
-              <button className="button button-primary" type="submit">Search</button>
+              <SubmitButton className="button button-primary" pendingLabel="Searching…">Search</SubmitButton>
             </form>
             {query && visitors.length === 0 ? <div className="empty">No matching active visitor records were found.</div> : null}
             <div className="stack">

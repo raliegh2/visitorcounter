@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { logoutAction } from "@/app/(auth)/login/actions";
 import type { AppRole, UserProfile } from "@/types/app";
 
@@ -113,10 +114,10 @@ export function AppShell({
           <strong>{profile.display_name}</strong>
           <small>{profile.role.replace("_", " ")}</small>
           <form action={logoutAction}>
-            <button className="sidebar-signout" type="submit">
+            <SubmitButton className="sidebar-signout" pendingLabel="Signing out…">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M14 8l4 4-4 4m4-4H9" /></svg>
               Sign out
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </aside>
@@ -128,7 +129,7 @@ export function AppShell({
           </button>
           <div>
             <h1>{current?.label ?? "Church Care Hub"}</h1>
-            <p>Community Church · {profile.role.replace("_", " ")}</p>
+            <p>Secure ministry workspace · {profile.role.replace("_", " ")}</p>
           </div>
           <div className="workspace-mark" aria-hidden="true">✦</div>
         </header>

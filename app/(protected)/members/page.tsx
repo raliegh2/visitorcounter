@@ -88,7 +88,7 @@ export default async function MembersPage({
               <label htmlFor="q">Search directory</label>
               <input id="q" name="q" defaultValue={query} maxLength={100} placeholder="Name, phone, email or ministry" />
             </div>
-            <button className="button button-secondary" type="submit">Search</button>
+            <SubmitButton className="button button-secondary" pendingLabel="Searching…">Search</SubmitButton>
           </form>
 
           {members.length === 0 ? (

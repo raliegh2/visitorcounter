@@ -4,6 +4,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireAdminAal2 } from "@/lib/auth";
+import type { UserProfile } from "@/types/app";
 
 const COOKIE_NAME = "cvas_recent_reauth";
 const MAX_AGE_SECONDS = 5 * 60;
@@ -67,9 +68,10 @@ function safeReturnTo(value: string): string {
   return value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
 }
 
-export async function requireRecentReauth(returnTo: string): Promise<void> {
+export async function requireRecentReauth(returnTo: string): Promise<UserProfile> {
   const profile = await requireAdminAal2();
   if (!(await hasRecentReauth(profile.id))) {
     redirect(`/reauth?next=${encodeURIComponent(safeReturnTo(returnTo))}`);
   }
+  return profile;
 }

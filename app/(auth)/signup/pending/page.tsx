@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { logoutAction } from "@/app/(auth)/login/actions";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { createClient } from "@/lib/supabase/server";
 import type { AppRole, RoleStatus } from "@/types/app";
 
@@ -58,7 +60,11 @@ export default async function SignupPendingPage() {
             <p>
               The pastor-access request could not be verified. Contact a church administrator to review or update the submitted details.
             </p>
-            <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
+            <form action={logoutAction} className="status-actions">
+              <SubmitButton className="button button-secondary button-full" pendingLabel="Signing out…">
+                Sign out and return to sign in
+              </SubmitButton>
+            </form>
           </>
         ) : (
           <>
@@ -70,7 +76,11 @@ export default async function SignupPendingPage() {
             <div className="notice notice-info">
               No visitor, member or care information is visible while the request is pending. You may safely close this page and return later.
             </div>
-            <Link className="button button-secondary button-full" href="/login">Return to sign in</Link>
+            <form action={logoutAction} className="status-actions">
+              <SubmitButton className="button button-secondary button-full" pendingLabel="Signing out…">
+                Sign out and return to sign in
+              </SubmitButton>
+            </form>
           </>
         )}
       </section>

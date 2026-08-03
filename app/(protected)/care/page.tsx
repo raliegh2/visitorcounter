@@ -78,7 +78,7 @@ export default async function CarePage({
               <label htmlFor="q">Search people</label>
               <input id="q" name="q" defaultValue={query} maxLength={100} placeholder="Name, phone or email" />
             </div>
-            <button className="button button-secondary" type="submit">Search</button>
+            <SubmitButton className="button button-secondary" pendingLabel="Searching…">Search</SubmitButton>
           </form>
 
           {people.length === 0 ? (

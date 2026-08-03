@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { importMembersAction } from "@/app/(protected)/import/actions";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 type ImportRow = {
   first_name: string;
@@ -95,6 +96,7 @@ function mapRows(table: string[][]): ImportRow[] {
 }
 
 export function MemberImport() {
+  const fileInput = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<ImportRow[]>([]);
   const [message, setMessage] = useState("");
 
@@ -128,6 +130,7 @@ export function MemberImport() {
         <strong>Choose CSV file</strong>
         <span className="muted small">Maximum 500 rows and 2 MB per import.</span>
         <input
+          ref={fileInput}
           type="file"
           accept=".csv,text/csv"
           onChange={(event) => {
@@ -144,7 +147,17 @@ export function MemberImport() {
           <input type="hidden" name="rowsJson" value={JSON.stringify(rows)} />
           <div className="import-summary">
             <strong>{rows.length} rows ready</strong>
-            <button type="button" className="button button-secondary button-small" onClick={() => { setRows([]); setMessage(""); }}>Clear</button>
+            <button
+              type="button"
+              className="button button-secondary button-small"
+              onClick={() => {
+                setRows([]);
+                setMessage("");
+                if (fileInput.current) fileInput.current.value = "";
+              }}
+            >
+              Clear file
+            </button>
           </div>
           <div className="table-wrap">
             <table>
@@ -163,7 +176,7 @@ export function MemberImport() {
             </table>
           </div>
           {rows.length > 15 ? <p className="muted small">Previewing the first 15 rows.</p> : null}
-          <button className="button button-primary button-full" type="submit">Import {rows.length} members</button>
+          <SubmitButton className="button button-primary button-full" pendingLabel="Importing members…">Import {rows.length} members</SubmitButton>
         </form>
       ) : null}
     </section>

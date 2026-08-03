@@ -125,7 +125,7 @@ export default async function UsersPage({
                 <option value="administrator">Administrator</option>
               </select>
             </div>
-            <div className="notice notice-info">Administrators must enroll multi-factor authentication before accessing administrative pages.</div>
+            <div className="notice notice-info">Administrator invitations require a recent password confirmation before sensitive account changes or exports.</div>
             <SubmitButton className="button button-primary button-full" pendingLabel="Sending invitation…">Invite staff member</SubmitButton>
           </form>
         </section>
@@ -152,27 +152,35 @@ export default async function UsersPage({
                   <td><span className={`badge ${user.role_status === "approved" ? "badge-success" : user.role_status === "pending" ? "badge-warning" : "badge-danger"}`}>{user.requested_role === user.role ? user.role_status : `${user.requested_role} ${user.role_status}`}</span></td>
                   <td><span className={`badge ${user.active ? "badge-success" : "badge-danger"}`}>{user.active ? "Active" : "Disabled"}</span></td>
                   <td>
-                    <form action={changeUserRoleAction} className="actions">
-                      <input type="hidden" name="userId" value={user.id} />
-                      <select name="role" defaultValue={user.role} disabled={user.id === current.id}>
-                        <option value="administrator">Administrator</option>
-                        <option value="pastor">Pastor</option>
-                        <option value="usher">Usher</option>
-                        <option value="auditor">Read-only leader</option>
-                      </select>
-                      <SubmitButton className="button button-secondary button-small" pendingLabel="Saving…">Save role</SubmitButton>
-                    </form>
+                    {user.id === current.id ? (
+                      <span className="current-account">Current account · role locked here</span>
+                    ) : (
+                      <form action={changeUserRoleAction} className="actions">
+                        <input type="hidden" name="userId" value={user.id} />
+                        <select name="role" defaultValue={user.role} aria-label={`Role for ${user.display_name}`}>
+                          <option value="administrator">Administrator</option>
+                          <option value="pastor">Pastor</option>
+                          <option value="usher">Usher</option>
+                          <option value="auditor">Read-only leader</option>
+                        </select>
+                        <SubmitButton className="button button-secondary button-small" pendingLabel="Saving…">Save role</SubmitButton>
+                      </form>
+                    )}
                   </td>
                   <td>
-                    <form action={changeUserActiveAction}>
-                      <input type="hidden" name="userId" value={user.id} />
-                      <input type="hidden" name="active" value={user.active ? "false" : "true"} />
-                      {user.active ? (
-                        <ConfirmSubmitButton className="button button-secondary button-small" pendingLabel="Saving…" confirmation={`Disable ${user.display_name}? Existing sessions will lose database access.`}>Disable</ConfirmSubmitButton>
-                      ) : (
-                        <SubmitButton className="button button-secondary button-small" pendingLabel="Saving…">Enable</SubmitButton>
-                      )}
-                    </form>
+                    {user.id === current.id ? (
+                      <span className="current-account">Current account · cannot disable</span>
+                    ) : (
+                      <form action={changeUserActiveAction}>
+                        <input type="hidden" name="userId" value={user.id} />
+                        <input type="hidden" name="active" value={user.active ? "false" : "true"} />
+                        {user.active ? (
+                          <ConfirmSubmitButton className="button button-secondary button-small" pendingLabel="Saving…" confirmation={`Disable ${user.display_name}? Existing sessions will lose database access.`}>Disable</ConfirmSubmitButton>
+                        ) : (
+                          <SubmitButton className="button button-secondary button-small" pendingLabel="Saving…">Enable</SubmitButton>
+                        )}
+                      </form>
+                    )}
                   </td>
                 </tr>
               ))}
