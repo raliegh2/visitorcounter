@@ -1,0 +1,28 @@
+name: Rebase dev release onto staging
+
+on:
+  push:
+    branches:
+      - chore/rebase-dev-on-staging
+
+permissions:
+  contents: write
+
+jobs:
+  rebase-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: chore/rebase-dev-on-staging
+
+      - name: Replace branch tree with validated dev release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin dev
+          git rm -r --ignore-unmatch .
+          git checkout origin/dev -- .
+          git commit -m "chore: rebase validated dev release onto staging"
+          git push origin HEAD:chore/rebase-dev-on-staging
