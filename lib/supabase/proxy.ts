@@ -12,6 +12,11 @@ const publicPaths = [
   "/api/health"
 ];
 
+type AccessProfile = {
+  active: boolean;
+  role_status: "pending" | "approved" | "rejected";
+};
+
 function isPublicPath(pathname: string): boolean {
   return publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
@@ -56,45 +61,34 @@ export async function updateSession(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  let response = NextResponse.next({
-    request: {
-      headers: requestHeaders
-    }
-  });
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(url, key, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll(cookiesToSet) {
-        for (const { name, value } of cookiesToSet) {
-          request.cookies.set(name, value);
-        }
-        response = NextResponse.next({
-          request: {
-            headers: requestHeaders
-          }
-        });
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
-        }
+        for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
+        response = NextResponse.next({ request: { headers: requestHeaders } });
+        for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options);
       }
     }
   });
 
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
-  let activeProfile = false;
+  let approvedProfile = false;
 
   if (user) {
-    const { data: profile } = await supabase
+    const { data } = await supabase
       .from("user_profiles")
-      .select("active")
+      .select("active, role_status")
       .eq("id", user.id)
       .maybeSingle();
-    activeProfile = profile?.active === true;
+    const profile = data as unknown as AccessProfile | null;
+    approvedProfile = profile?.active === true && profile.role_status === "approved";
   }
 
-  if (user && !activeProfile) {
+  if (user && !approvedProfile) {
     if (pathname === "/signup/pending") {
       response.headers.set("Content-Security-Policy", csp);
       response.headers.set("Cache-Control", "private, no-store");
@@ -120,7 +114,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && activeProfile && (pathname === "/login" || pathname === "/signup" || pathname === "/signup/pending")) {
+  if (user && approvedProfile && (pathname === "/login" || pathname === "/signup" || pathname === "/signup/pending")) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";

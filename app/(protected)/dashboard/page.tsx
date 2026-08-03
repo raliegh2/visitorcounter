@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { chooseService, getAvailableServices } from "@/lib/data";
+import { MinistryOverview } from "@/components/MinistryOverview";
 import { ServicePicker } from "@/components/ServicePicker";
 
 type Metrics = {
@@ -33,7 +34,9 @@ export default async function DashboardPage({
 
   return (
     <>
-      <header className="page-header">
+      <MinistryOverview role={profile.role} serviceId={service?.id} />
+
+      <header className="page-header" style={{ marginTop: 28 }}>
         <div>
           <h1>Current service dashboard</h1>
           <p>

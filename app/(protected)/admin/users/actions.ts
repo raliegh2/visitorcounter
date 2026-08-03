@@ -6,9 +6,10 @@ import { requireAdminAal2 } from "@/lib/auth";
 import { requireRecentReauth } from "@/lib/reauth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { callRpc } from "@/lib/supabase/rpc";
 import { publicEnv } from "@/lib/env";
 import { checkbox, stringField } from "@/lib/form-data";
-import { inviteUserSchema, userActiveSchema, userRoleSchema } from "@/lib/schemas";
+import { inviteUserSchema, pastorReviewSchema, userActiveSchema, userRoleSchema } from "@/lib/schemas";
 
 export async function inviteUserAction(formData: FormData) {
   await requireRecentReauth("/admin/users");
@@ -27,9 +28,7 @@ export async function inviteUserAction(formData: FormData) {
   const env = publicEnv();
   const { data, error } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, {
     redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/reset-password`,
-    data: {
-      display_name: parsed.data.displayName
-    }
+    data: { display_name: parsed.data.displayName }
   });
 
   if (error || !data.user) {
@@ -40,7 +39,7 @@ export async function inviteUserAction(formData: FormData) {
     id: data.user.id,
     organization_id: profile.organization_id,
     display_name: parsed.data.displayName,
-    role: parsed.data.role,
+    role: "usher",
     active: true
   });
 
@@ -50,6 +49,16 @@ export async function inviteUserAction(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const { error: roleError } = await callRpc<null>(supabase, "set_user_role", {
+    p_user_id: data.user.id,
+    p_role: parsed.data.role
+  });
+
+  if (roleError) {
+    await admin.auth.admin.deleteUser(data.user.id);
+    redirect("/admin/users?error=The+staff+role+could+not+be+assigned.");
+  }
+
   await supabase.rpc("record_admin_event", {
     p_action: "USER_INVITED",
     p_resource_type: "user_profile",
@@ -63,33 +72,40 @@ export async function inviteUserAction(formData: FormData) {
 }
 
 export async function changeUserRoleAction(formData: FormData) {
-  await requireRecentReauth("/admin/users");
+  const current = await requireRecentReauth("/admin/users");
   const parsed = userRoleSchema.safeParse({
     userId: stringField(formData, "userId"),
     role: stringField(formData, "role")
   });
 
   if (!parsed.success) redirect("/admin/users?error=The+role+change+is+invalid.");
+  if (parsed.data.userId === current.id) {
+    redirect("/admin/users?error=Use+another+administrator+account+to+change+your+own+role.");
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("set_user_role", {
+  const { error } = await callRpc<null>(supabase, "set_user_role", {
     p_user_id: parsed.data.userId,
     p_role: parsed.data.role
   });
 
   if (error) redirect("/admin/users?error=The+role+could+not+be+changed.");
   revalidatePath("/admin/users");
+  revalidatePath("/dashboard");
   redirect("/admin/users?notice=User+role+updated.");
 }
 
 export async function changeUserActiveAction(formData: FormData) {
-  await requireRecentReauth("/admin/users");
+  const current = await requireRecentReauth("/admin/users");
   const parsed = userActiveSchema.safeParse({
     userId: stringField(formData, "userId"),
     active: checkbox(formData, "active")
   });
 
   if (!parsed.success) redirect("/admin/users?error=The+account+status+request+is+invalid.");
+  if (parsed.data.userId === current.id) {
+    redirect("/admin/users?error=You+cannot+disable+your+own+administrator+account.");
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_user_active", {
@@ -100,4 +116,33 @@ export async function changeUserActiveAction(formData: FormData) {
   if (error) redirect("/admin/users?error=The+account+status+could+not+be+changed.");
   revalidatePath("/admin/users");
   redirect("/admin/users?notice=Account+status+updated.");
+}
+
+export async function reviewPastorApplicationAction(formData: FormData) {
+  await requireRecentReauth("/admin/users");
+  await requireAdminAal2();
+  const parsed = pastorReviewSchema.safeParse({
+    userId: stringField(formData, "userId"),
+    decision: stringField(formData, "decision"),
+    notes: stringField(formData, "notes")
+  });
+
+  if (!parsed.success) {
+    redirect("/admin/users?error=The+pastor+review+request+is+invalid.");
+  }
+
+  const supabase = await createClient();
+  const { error } = await callRpc<null>(supabase, "review_pastor_application", {
+    p_user_id: parsed.data.userId,
+    p_approved: parsed.data.decision === "approve",
+    p_notes: parsed.data.notes || null
+  });
+
+  if (error) {
+    redirect("/admin/users?error=The+pastor+application+could+not+be+reviewed.");
+  }
+
+  revalidatePath("/admin/users");
+  revalidatePath("/dashboard");
+  redirect(`/admin/users?notice=${encodeURIComponent(parsed.data.decision === "approve" ? "Pastor access approved." : "Pastor request rejected.")}`);
 }

@@ -1,4 +1,5 @@
 import type { ServiceSummary } from "@/types/app";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function ServicePicker({
   services,
@@ -19,7 +20,7 @@ export function ServicePicker({
           </option>
         ))}
       </select>
-      <button className="button button-secondary" type="submit">Load service</button>
+      <SubmitButton className="button button-secondary" pendingLabel="Loading…">Load service</SubmitButton>
     </form>
   );
 }

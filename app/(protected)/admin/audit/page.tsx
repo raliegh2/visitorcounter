@@ -1,5 +1,6 @@
 import { requireAdminAal2 } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata = { title: "Audit log" };
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export default async function AuditPage({
             <label htmlFor="q">Filter by action or resource</label>
             <input id="q" name="q" defaultValue={params.q ?? ""} maxLength={80} />
           </div>
-          <button className="button button-primary" type="submit">Filter</button>
+          <SubmitButton className="button button-primary" pendingLabel="Filtering…">Filter</SubmitButton>
         </form>
 
         <div className="table-wrap">
