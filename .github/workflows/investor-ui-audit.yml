@@ -22,7 +22,7 @@ jobs:
             | sort -z \
             | xargs -0 grep -nE '<button|<Link|<a |type="submit"|formAction=|action=|onClick=|href=|disabled=|aria-disabled|Coming soon|TODO|placeholder' \
             > audit-output/control-inventory.txt || true
-          tar -czf audit-output/ui-source.tar.gz app components lib tests package.json package-lock.json
+          tar --exclude=.git --exclude=node_modules --exclude=.next --exclude=audit-output -czf audit-output/full-source.tar.gz .
 
       - uses: actions/upload-artifact@v4
         with:
