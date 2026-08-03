@@ -1,0 +1,44 @@
+name: Audit staging conflicts
+
+on:
+  push:
+    branches:
+      - chore/audit-staging-conflicts
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: chore/audit-staging-conflicts
+
+      - name: Attempt staging merge and capture conflicts
+        shell: bash
+        run: |
+          mkdir -p conflict-output
+          git fetch origin staging
+          set +e
+          git merge --no-commit --no-ff origin/staging
+          MERGE_STATUS=$?
+          set -e
+          printf 'merge_status=%s\n' "$MERGE_STATUS" > conflict-output/summary.txt
+          git diff --name-only --diff-filter=U | tee conflict-output/conflicts.txt
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            safe=$(printf '%s' "$file" | tr '/ ' '__')
+            git show ":1:$file" > "conflict-output/${safe}.base" 2>/dev/null || true
+            git show ":2:$file" > "conflict-output/${safe}.dev" 2>/dev/null || true
+            git show ":3:$file" > "conflict-output/${safe}.staging" 2>/dev/null || true
+          done < conflict-output/conflicts.txt
+          git merge --abort || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staging-conflict-audit
+          path: conflict-output
+          retention-days: 2
