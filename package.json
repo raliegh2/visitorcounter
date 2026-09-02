@@ -29,12 +29,12 @@
     "deploy:vercel": "node scripts/deploy-vercel.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "0.12.4",
-    "@supabase/supabase-js": "2.111.0",
-    "next": "16.2.12",
+    "@supabase/ssr": "0.12.5",
+    "@supabase/supabase-js": "2.112.4",
+    "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
